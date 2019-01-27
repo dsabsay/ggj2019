@@ -16,6 +16,7 @@ var counter = 0;
 var bgMusic;
 var jumpSound;
 var landSound;
+var walkSound;
 var level1 = [[[0,0,0,0,0],
 	       [0,0,0,0,0],
 	       [0,0,0,0,0],
@@ -118,13 +119,15 @@ function startGame() { // the html document index.html calls startGame()
     bgMusic.play();
     jumpSound = new sound("jump_start.mp3");
     landSound = new sound("jump_land.mp3");
+    walkSound = new sound("Walking.mp3");
     platforms.push(new platform(260, 290));
     tiles.push(new tile(level1[0],270,160,2));    // the first tile must start in the middle, big
     background.slots[1].acceptTile(tiles[0].platforms);
+
     var x = 20;
     for (var i = 1; i<level1.length; i++){
-	tiles.push(new tile(level1[i],x,20,1));
-	x += 120;    
+        tiles.push(new tile(level1[i],x,20,1));
+        x += 120;    
     }
 
     player1 = new player(40, 49, "Idle.png", 290, myGameArea.canvas.height-200);
@@ -135,16 +138,16 @@ var myGameArea = {
     start : function() {
         this.context = this.canvas.getContext("2d");
         this.frameNumber = 0;
-	this.keys = new Set();
+        this.keys = new Set();
         this.interval = setInterval(updateGameArea, 20); //update every 20ms
-	//listen for when the user pushes key
-	window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
-	window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
-	window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+        //listen for when the user pushes key
+        window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+        window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
+        window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
         window.addEventListener('keydown', function (e) {myGameArea.keys.add(e.keyCode);})
         window.addEventListener('keyup', function (e) {myGameArea.keys.delete(e.keyCode);})}, 
     clear : function(){
-	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
     
@@ -156,13 +159,13 @@ function sound(src) {
     this.sound.style.display = "none";
     document.body.appendChild(this.sound);
     this.play = function(){
-	this.sound.play();
+        this.sound.play();
     }
     this.stop = function(){
-	this.sound.pause();
+        this.sound.pause();
     }
     this.loop = function(){
-	this.sound.loop = true;
+        this.sound.loop = true;
     }
 }
 
@@ -367,38 +370,43 @@ function player(width, height, image, x, y) {
     this.facing = "right";
     this.gravity = 0.08;
     this.gravitySpeed = 0;
+    this.walkCycle = ["Base.png", "Walk1.png", "Walk2.png", "Base.png", "Walk2.png", "Walk1.png"];
+    this.walkCycleFrame = 0;
+    this.walkCycleDelay = 7;
 
-    this.nextImage = function(){
-	if (this.image.src === "Base.png"){
-	    this.image.src = "Idle.png";
-	} else {
-	    this.image.src = "Base.png";
-	}
-	
+    this.nextImage = function() {
+        if (this.image.src === "Base.png"){
+            this.image.src = "Idle.png";
+        } else {
+            this.image.src = "Base.png";
+        }
+    }
+
+    this.advanceWalkCycle = function() {
+        if (this.walkCycleDelay != 0) {
+            this.walkCycleDelay -= 1;
+            return;
+        }
+        this.walkCycleFrame = (this.walkCycleFrame + 1) % this.walkCycle.length;
+        this.image.src = this.walkCycle[this.walkCycleFrame];
+        this.walkCycleDelay = 7;
     }
 
     this.moveRight = function() {
-	if (!this.collidingRight()){
-	    this.changeX = 1.8;
-	    this.facing = "right";
-	    if (this.image.src === "Walk1.png"){
-		this.image.src = "Walk2.png";
-	    } else {
-		this.image.src = "Walk1.png";
-	    }
-	}
+        console.log("move right");
+        if (!this.collidingRight()){
+            this.changeX = 1.8;
+            this.facing = "right";
+            this.advanceWalkCycle();
+        }
     }
 
     this.moveLeft = function() {
-	if (!this.collidingLeft()){
-	    this.changeX = -1.8;
-	    this.facing = "left";
-	    if (this.image.src === "Walk1.png"){
-		this.image.src = "Walk2.png";
-	    } else {
-		this.image.src = "Walk1.png";
-	    }	
-	}
+        if (!this.collidingLeft()){
+            this.changeX = -1.8;
+            this.facing = "left";
+            this.advanceWalkCycle();
+        }
     }
 
     this.update = function() {
@@ -410,24 +418,24 @@ function player(width, height, image, x, y) {
 	
 	switch (this.apples){
 	case 0:
-	this.basket.src = "Basket0.png";
-	break;
+        this.basket.src = "Basket0.png";
+        break;
 	case 1:
-	this.basket.src = "Basket1.png";
-	break;
+        this.basket.src = "Basket1.png";
+        break;
 	case 2:
-	this.basket.src = "Basket2.png";
-	break;
+        this.basket.src = "Basket2.png";
+        break;
 	case 3:
-	this.basket.src = "Basket3.png";
-	break;
+        this.basket.src = "Basket3.png";
+        break;
 	}
 	
 	
 	if (this.colliding()){
 	    if (this.gravitySpeed > 0){
-		landSound.play();
-		this.image.src = "Idle.png";
+            landSound.play();
+            this.image.src = "Idle.png";
 	    }
 	    this.gravitySpeed = 0;
 	}
@@ -597,22 +605,22 @@ function updateGameArea() {
     player1.changeX = 0; // player controls
     
     if (myGameArea.keys.has(37)) { // left arrow pushed
-	player1.moveLeft();
+        player1.moveLeft();
     }
     if (myGameArea.keys.has(39)) { // right arrow pushed
-	player1.moveRight();
+        player1.moveRight();
     }
     if (myGameArea.keys.has(32)) {// space bar pushed
-	if (player1.colliding()){
-	    jumpSound.play();
-	    player1.image.src = "Jump.png";
-	    player1.state = "jump";
-	    player1.changeY = -3.8;
-	}
+        if (player1.colliding()){
+            jumpSound.play();
+            player1.image.src = "Jump.png";
+            player1.state = "jump";
+            player1.changeY = -3.8;
+        }
     }
     
     for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
-	platforms[i].update();      
+        platforms[i].update();      
 	
     	/*	else if (platforms[i].y == myGameArea.height) { //remove if at bottom of screen
 		
