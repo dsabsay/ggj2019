@@ -6,6 +6,7 @@
 
 var player1;
 var platforms = [];
+var apples = [];
 var mText;
 var startTileX = -1;
 var startTileY = -1;
@@ -16,46 +17,53 @@ var bgMusic;
 var jumpSound;
 var landSound;
 var level1 = [[[0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [2,3,0,0,0]],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [2,3,0,0,0]],
 	
-	    [[0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,2,3,0],
-	     [0,0,0,0,0],
-	     [0,2,3,0,0]],
-
-	    [[0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,1,0,0]],
-
-	    [[0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [1,0,0,0,0],
-	     [7,0,0,1,0],
-	     [7,0,2,6,0],
-	     [8,4,8,6,0]],
-
-	    [[0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,2,3,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0]],
-
-	    [[0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,0,0,0],
-	     [0,0,1,0,0]]];
+	      [[0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,9],
+	       [0,0,0,0,1]],
+	      
+	      [[0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,2,3,0],
+	       [0,0,0,0,0],
+	       [0,2,3,0,0]],
+	      
+	      [[0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,10,0,0],
+	       [0,0,1,0,0],
+	       [0,0,7,0,0]],
+	      
+	      [[0,0,0,0,0],
+	       [1,0,0,0,0],
+	       [7,0,0,0,0],
+	       [7,0,0,0,1],
+	       [7,11,0,2,6],
+	       [8,2,3,8,6]],
+	      
+	      [[0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,2,3,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0]],
+	      
+	      [[0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,0,0,0],
+	       [0,0,12,0,0],
+	       [0,0,1,0,0]]];
 
 var level2 = [[[0,0,0,0,0],
 	     [0,0,0,0,0],
@@ -106,7 +114,7 @@ function startGame() { // the html document index.html calls startGame()
     background = new bg();
     mText = new textBox("14px", "Helvetica", 100,120);
     bgMusic = new sound("main.mp3");
-    bgMusic.loop = true;
+    bgMusic.loop();
     bgMusic.play();
     jumpSound = new sound("jump_start.mp3");
     landSound = new sound("jump_land.mp3");
@@ -119,7 +127,7 @@ function startGame() { // the html document index.html calls startGame()
 	x += 120;    
     }
 
-    player1 = new player(30, 50, "rr_stand.png", 290, myGameArea.canvas.height-200);
+    player1 = new player(40, 49, "Idle.png", 290, myGameArea.canvas.height-200);
 }
 
 var myGameArea = {
@@ -153,6 +161,9 @@ function sound(src) {
     this.stop = function(){
 	this.sound.pause();
     }
+    this.loop = function(){
+	this.sound.loop = true;
+    }
 }
 
 function textBox(size, font, x, y) { // text like the score
@@ -175,15 +186,20 @@ function bg(){
     this.height = 160;
     this.gap = 20;
     this.slots = [];
+    this.bgImage = new Image();
+    this.bgImage.src = "Background.png";
     for (var i=0; i<3; i++){
 	this.slots.push(new slot(this.x, this.y, this.width, this.height));
-	    ctx = myGameArea.context;
-	    ctx.lineWidth = 0.5;
-	    ctx.strokeRect(this.x, this.y, this.width, this.height);
-	    this.x+=this.width+this.gap;
+	ctx = myGameArea.context;
+	ctx.lineWidth = 0.5;
+	ctx.strokeRect(this.x, this.y, this.width, this.height);
+	this.x+=this.width+this.gap;
     }    
     this.update = function(){
-	/*this.x = 50;
+	// draw bg image
+	ctx = myGameArea.context; 
+	ctx.drawImage(this.bgImage, 0, -100, 760, 500);
+	/*this.x = 50
 	for (var i=0; i<3; i++){
 	    this.slots.push(new slot(this.x, this.y, this.width, this.height));
 	    ctx = myGameArea.context;
@@ -249,7 +265,7 @@ function tile(map, x, y, scale){
     this.x = x;
     this.y = y;
     this.zIndex = 1;
-    this.width = 25;
+    this.width = 24;
     this.height = 17;
     this.platforms = [];
     this.scale = scale;
@@ -260,10 +276,15 @@ function tile(map, x, y, scale){
     this.image = new Image();
     this.Twidth = 100;
     this.Theight = 80;
+    this.bgImage = new Image();
+    this.bgImage.src = "Cloud1.png";
  
     for (var i = 0; i<map.length; i++){ // populate platform array
 	for (var j = map[i].length-1; j >=0; j--){  
 	    if (map[i][j] > 0){
+		if (map[i][j] >= 9) { // these are apples
+		  apples.push(new apple(j,i,map[i][j]));
+		}
 		this.platforms.push(new platform(j,i,map[i][j]));
 	    }
 	}
@@ -271,16 +292,40 @@ function tile(map, x, y, scale){
 
     this.update = function(){   
 
-	ctx.fillStyle =  this.color;
-	ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
+	ctx.lineWidth = 0.5;
+	//ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
+	ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
+	ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
+	
 	this.drawx = this.x;
 	this.drawy = this.y;
 	for (var i = 0; i < map.length; i++){
 	    for (var j = 0; j < map[i].length; j++){
-		if (map[i][j]){
-		    this.image.src = "Tile" + map[i][j] + ".png";
-		    //ctx.globalAlpha = 0.5;
+		if (map[i][j] > 0 && map[i][j] < 9){
+		    this.image.src = "Tile" + map[i][j] + ".png"; // draw platforms
+ 		    //ctx.globalAlpha = 0.5;
 		    ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
+		} else if (map[i][j] >= 9){
+		    apples[map[i][j]-9].drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+		    /*		    switch (map[i][j]){// draw apples
+		    case 9:
+			this.image.src = "Apple1.png";
+		    ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+			break;
+		    case 10:
+			this.image.src = "Apple2.png";
+		    ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+			break;
+		    case 11:
+			this.image.src = "Apple3.png";
+		    ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+			break;
+		    case 12:
+			this.image.src = "HouseClosed.png";
+
+			break;
+			}*/
+
 		}
 		this.drawx += this.width*this.scale-4*this.scale;
 	    }
@@ -294,9 +339,11 @@ function platform(x, y, type) { // for things to collide with
     this.x = x;
     this.y = y;
     if (type < 5){
-	this.type = "top";
-    } else {
-	this.type = "nottop";
+	this.type = 1; // top
+    } else if (type >= 9){ // apple
+	this.type = type;
+    } else { // side
+	type = 2;
     }
     
     this.update = function() {
@@ -305,7 +352,9 @@ function platform(x, y, type) { // for things to collide with
 
 function player(width, height, image, x, y) { 
     this.image = new Image();
-    this.image.src = image;    
+    this.image.src = image;  
+    this.basket = new Image();
+    this.basket.src = "Basket0.png";
     this.zIndex = 1000;
     this.width = width;
     this.height = height;
@@ -315,35 +364,82 @@ function player(width, height, image, x, y) {
     this.y = y;
     this.apples = 0;
     this.state = "idle";
+    this.facing = "right";
     this.gravity = 0.08;
     this.gravitySpeed = 0;
 
+    this.nextImage = function(){
+	if (this.image.src === "Base.png"){
+	    this.image.src = "Idle.png";
+	} else {
+	    this.image.src = "Base.png";
+	}
+	
+    }
+
     this.moveRight = function() {
 	if (!this.collidingRight()){
-	    this.changeX = 2;
-	    this.state = "right";
+	    this.changeX = 1.8;
+	    this.facing = "right";
+	    if (this.image.src === "Walk1.png"){
+		this.image.src = "Walk2.png";
+	    } else {
+		this.image.src = "Walk1.png";
+	    }
 	}
     }
 
     this.moveLeft = function() {
 	if (!this.collidingLeft()){
-	    this.changeX = -2;
-	    this.state = "left";
+	    this.changeX = -1.8;
+	    this.facing = "left";
+	    if (this.image.src === "Walk1.png"){
+		this.image.src = "Walk2.png";
+	    } else {
+		this.image.src = "Walk1.png";
+	    }	
 	}
     }
 
     this.update = function() {
 	
+	if (this.touchingApple()){
+	    //console.log("touching");
+	    this.apples++;
+	}
+	
+	switch (this.apples){
+	case 0:
+	this.basket.src = "Basket0.png";
+	break;
+	case 1:
+	this.basket.src = "Basket1.png";
+	break;
+	case 2:
+	this.basket.src = "Basket2.png";
+	break;
+	case 3:
+	this.basket.src = "Basket3.png";
+	break;
+	}
+	
+	
 	if (this.colliding()){
 	    if (this.gravitySpeed > 0){
 		landSound.play();
+		this.image.src = "Idle.png";
 	    }
 	    this.gravitySpeed = 0;
 	}
 	else {
+	    //console.log(this.changeY);
+	    if (this.changeY + this.gravitySpeed > 0){
+		this.image.src = "Falling1.png";
+	        this.state = "fall";
+	    }
 	    this.gravitySpeed += this.gravity;
 	    if (this.changeY < 0){
-		if (this.changeY + this.gravity > 0){
+		if (this.changeY + this.gravity > 0){ // don't sink in
 		    this.changeY = 0;
 		} else {
 		    this.changeY += this.gravity;
@@ -355,45 +451,78 @@ function player(width, height, image, x, y) {
 	
 	ctx = myGameArea.context; // draw player
 	ctx.save();
-	if (this.state === "left"){
+	if (this.facing === "left"){
 	    ctx.scale(-1,1);
 	    ctx.drawImage(this.image, 
 			  -this.x - this.width, 
 			  this.y,
-			  this.width, this.height);	
-	} else {
+			  this.width, this.height);
+	    
+	    //if (this.state === "jump"){
+	    //ctx.rotate(15);
+	    //}
+	    
+	    ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
+	    //ctx.rotate(0);
+	} else  {
 	    ctx.scale(1,1);
 	    ctx.drawImage(this.image, 
 			  this.x, 
 			  this.y,
 			  this.width, this.height);
+	    //if (this.state === "jump"){
+	    //ctx.rotate(15);
+	    //}	
+	    ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
+	    //ctx.rotate(0);
 	}
-	
-	
 	ctx.restore();   
 	
     }
-
-    this.collidingRight = function(){
-	for (let slot of background.slots) {
-	    for (let cBox of slot.cBoxes){ //look at every platform
-		if (cBox[0] < this.x + this.width &&
-		    cBox[0] > this.x &&
-		    cBox[1] < this.y + this.height -10){
-		    return 1;
+    
+    this.touchingApple = function(){
+	for (let slot of background.slots){
+	    for (var i = 0; i<slot.cBoxes.length; i++){
+		if (slot.cBoxes[i][4] >=9){
+		    //console.log(cBox);
+		    if (slot.cBoxes[i][0] < this.x + this.width &&
+			slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
+			slot.cBoxes[i][1] < this.y + this.height -10){
+			slot.cBoxes.splice(i,1);    
+			return 1;
+			
+		    }
 		}
 	    }
 	}
 	return 0;
     }
-
+    
+    this.collidingRight = function(){
+	for (let slot of background.slots) {
+	    for (let cBox of slot.cBoxes){ //look at every platform
+		//console.log(cBox[4]);
+		if (cBox[4] != "apple"){
+		    if (cBox[0] < this.x + this.width &&
+			cBox[0] > this.x &&
+			cBox[1] < this.y + this.height -10){
+			return 1;
+		    }
+		}
+	    }
+	}
+	return 0;
+    }
+    
     this.collidingLeft = function(){
 	for (let slot of background.slots) {
 	    for (let cBox of slot.cBoxes){ //look at every platform
-		if (cBox[0] + 45 > this.x &&
-		    cBox[0] + 45 < this.x + this.width&&
-		    cBox[1] < this.y + this.height -10){
-		    return 1;
+		if (cBox[4] != "apple"){
+		    if (cBox[0] + 45 > this.x &&
+			cBox[0] + 45 < this.x + this.width&&
+			cBox[1] < this.y + this.height -10){
+			return 1;
+		    }
 		}
 	    }
 	}
@@ -405,7 +534,7 @@ function player(width, height, image, x, y) {
 	for (let slot of background.slots) {
 	    for (let cBox of slot.cBoxes){ //look at every platform
 		//console.log(cBox, this.x, this.width);
-		if (cBox[4] === "top" &&
+		if (cBox[4] === 1 &&
 		    cBox[1] < this.y + this.height &&
 		    cBox[1] > this.y + this.height - 10 &&
 		    cBox[0] < this.x + this.width &&
@@ -418,16 +547,52 @@ function player(width, height, image, x, y) {
     }
 }
 
-function collectible(){
+function apple(x,y,num){
+    this.x = x;
+    this.y = y;
+    this.width = 20;
+    this.height = 17;
+    this.scale = 1;
+    this.num = num; 
+    this.image = new Image();
+    this.image.src;
     
+    this.update = function(){
+	
+    }
+    
+    this.drawApple = function(dx,dy,height,width){
+	if (this.num === 12){
+	    this.image.src = "HouseClosed.png";
+	    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
+	} else {
+	    this.image.src = "Apple" + 1 + ".png";
+	    ctx.drawImage(this.image, dx, dy, height, width);		
+	}
+
+    }
+    
+    this.touchingPlayer = function(){
+	if (this.x < player1.x + player1.width &&
+	    this.x + this.width > player1.x &&
+	    this.y < player1.y + player1.height &&
+	    this.y + this.height > player1.y){
+	    return 1;
+	}
+	else {
+	    return 0;
+	}
+    }
 }
 
 function updateGameArea() {
     myGameArea.clear();
     myGameArea.frameNumber += 1;
     background.update();
-    //    if (myGameArea.frameNumber % 20 == 0) { // add a new raindrop every 20 frames
-	//}
+    if (myGameArea.frameNumber % 20 === 0) { // add a new raindrop every 20 frames
+	//player1.nextImage();
+	//console.log("next");
+    }
     
     player1.changeX = 0; // player controls
     
@@ -440,24 +605,26 @@ function updateGameArea() {
     if (myGameArea.keys.has(32)) {// space bar pushed
 	if (player1.colliding()){
 	    jumpSound.play();
-	    player1.changeY = -4;
+	    player1.image.src = "Jump.png";
+	    player1.state = "jump";
+	    player1.changeY = -3.8;
 	}
     }
-
+    
     for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
 	platforms[i].update();      
 	
     	/*	else if (platforms[i].y == myGameArea.height) { //remove if at bottom of screen
-	    platforms.splice(i,1);    
-	} else { //remove and add point if touching player1
-	    platforms.splice(i,1); 
-	    counter += 1;     
-	}
+		
+		} else { //remove and add point if touching player1
+		platforms.splice(i,1); 
+		counter += 1;     
+		}
 	*/
     }
     for (j = 0; j < tiles.length; j++){
 	if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)){ // touching mouse
-
+	    
 	    if (myGameArea.mouseX > tiles[j].x && 
 		myGameArea.mouseX < tiles[j].x+120*tiles[j].scale 
 		&& myGameArea.mouseY >tiles[j].y 
