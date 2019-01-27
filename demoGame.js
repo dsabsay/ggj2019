@@ -403,7 +403,6 @@ function player(width, height, image, x, y) {
     }
 
     this.moveRight = function() {
-        console.log("move right");
         if (!this.collidingRight()){
             this.changeX = 1.8;
             this.facing = "right";
@@ -422,7 +421,6 @@ function player(width, height, image, x, y) {
     this.update = function() {
 	
 	if (this.touchingApple()){
-	    //console.log("touching");
 	    this.apples++;
 	}
 	
@@ -507,7 +505,10 @@ function player(width, height, image, x, y) {
 			slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
 			slot.cBoxes[i][1] < this.y + this.height -10){
 			if (slot.cBoxes[i][4] === 12){ //house
-			    win = 1;
+                if (this.apples == 3) {
+                    win = 1;
+                    window.location.replace("credits.html");
+                }
 			} else {
 			
 			//index is slot.cBoxes[i][4]
