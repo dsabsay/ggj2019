@@ -6,7 +6,7 @@
 
 var player1;
 var platforms = [];
-var apples = [];
+var apples = new Set();
 var mText;
 var startTileX = -1;
 var startTileY = -1;
@@ -286,7 +286,7 @@ function tile(map, x, y, scale){
 	for (var j = map[i].length-1; j >=0; j--){  
 	    if (map[i][j] > 0){
 		if (map[i][j] >= 9) { // these are apples
-		  apples.push(new apple(j,i,map[i][j]));
+		  apples.add(new apple(j,i,map[i][j]));
 		}
 		this.platforms.push(new platform(j,i,map[i][j]));
 	    }
@@ -308,9 +308,19 @@ function tile(map, x, y, scale){
 		    this.image.src = "Tile" + map[i][j] + ".png"; // draw platforms
  		    //ctx.globalAlpha = 0.5;
 		    ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
+		} else if (map[i][j] === 12){
+		    for (let apple of apples){
+			if (apple.num === map[i][j]){
+			    apple.drawApple(this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);	
+			}			
+		    }	
 		} else if (map[i][j] >= 9){
-		    apples[map[i][j]-9].drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
-		    /*		    switch (map[i][j]){// draw apples
+		    for (let apple of apples){
+			if (apple.num === map[i][j]){
+			    apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+			}
+		    }
+            /*
 		    case 9:
 			this.image.src = "Apple1.png";
 		    ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
@@ -489,14 +499,27 @@ function player(width, height, image, x, y) {
     }
     
     this.touchingApple = function(){
-	for (let slot of background.slots){
-	    for (var i = 0; i<slot.cBoxes.length; i++){
-		if (slot.cBoxes[i][4] >=9){
-		    //console.log(cBox);
+	for (let slot of background.slots){ // all the slots
+	    for (var i = 0; i<slot.cBoxes.length; i++){ // all the platforms
+		if (slot.cBoxes[i][4] >=9){ // platform type
+		    console.log(slot.cBoxes[i][4]);
 		    if (slot.cBoxes[i][0] < this.x + this.width &&
 			slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
 			slot.cBoxes[i][1] < this.y + this.height -10){
-			slot.cBoxes.splice(i,1);    
+			if (slot.cBoxes[i][4] === 12){ //house
+			    win = 1;
+			} else {
+			
+			//index is slot.cBoxes[i][4]
+			for (let apple of apples){
+			    //console.log(apple.num, slot.cBoxes[i][4]);
+			    if (apple.num === slot.cBoxes[i][4]){
+				apple.num = 0;
+			    }
+			    //slot.cBoxes.splice(i,1);    
+			    //console.log(apple.num);
+			}
+			}
 			return 1;
 			
 		    }
@@ -570,11 +593,14 @@ function apple(x,y,num){
     }
     
     this.drawApple = function(dx,dy,height,width){
-	if (this.num === 12){
-	    this.image.src = "HouseClosed.png";
-	    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
-	} else {
-	    this.image.src = "Apple" + 1 + ".png";
+	if (this.num >= 9){
+	    if (this.num === 12){
+		this.image.src = "HouseClosed.png";
+		//    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
+	    } else {
+		this.image.src = "Apple" + 1 + ".png";
+		
+	    }
 	    ctx.drawImage(this.image, dx, dy, height, width);		
 	}
 
