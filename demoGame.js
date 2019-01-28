@@ -654,9 +654,11 @@ function leaf(){
     this.image = new Image();
     this.image.src = "Leaf.png";
     this.x = Math.random()*720;
-    this.y = 0;
+    this.y = -50;
+    this.rotation = Math.random()*360;
     this.width = Math.floor(Math.random()*25)+25;
     this.height = this.width;
+    this.changeR = Math.random()*3 - 1.5;
     
     this.changeX = Math.random()*3;
     this.changeY = Math.sqrt(16-Math.pow(this.changeX,2));
@@ -664,9 +666,13 @@ function leaf(){
     this.update = function(){
 	this.x += this.changeX;
 	this.y += this.changeY;
+	this.rotation += this.changeR;
 	ctx = myGameArea.context;
-	ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-	//console.log(this.x);    
+	ctx.save();
+	ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
+	ctx.rotate(this.rotation * Math.PI / 180);
+	ctx.drawImage(this.image, 0,0, this.width, this.height);
+	ctx.restore();
     }
 }
 
@@ -676,7 +682,7 @@ function updateGameArea() {
     background.update();
 
     if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
-	nextLeafAt = Math.floor(Math.random()*50)+50 + myGameArea.frameNumber; //chose a new time
+	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
 	leaves.push(new leaf);
     }
     
