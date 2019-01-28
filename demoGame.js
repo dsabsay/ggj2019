@@ -131,7 +131,7 @@ function startGame() { // the html document index.html calls startGame()
     mText = new textBox("14px", "Helvetica", 100,120);
     bgMusic = new sound(getResourcePath("main.mp3"));
     bgMusic.loop();
-    // bgMusic.play();
+    bgMusic.play();
     jumpSound = new sound(getResourcePath("jump_start.mp3"));
     landSound = new sound(getResourcePath("jump_land.mp3"));
     walkSound = new sound(getResourcePath("Walking.mp3"));
