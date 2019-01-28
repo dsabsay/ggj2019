@@ -110,16 +110,24 @@ var level2 = [[[0,0,0,0,0],
 var tiles = [];
 var background;
 
+/* Return the full path to a resource. */
+function getResourcePath(name) {
+    if (window.location.hostname.includes("dsabsay.github.io/ggj2019")) {
+        return "https://raw.githubusercontent.com/dsabsay/ggj2019/master/" + name;
+    }
+    return name;
+}
+
 function startGame() { // the html document index.html calls startGame()
     myGameArea.start();
     background = new bg();
     mText = new textBox("14px", "Helvetica", 100,120);
-    bgMusic = new sound("main.mp3");
+    bgMusic = new sound(getResourcePath("main.mp3"));
     bgMusic.loop();
     bgMusic.play();
-    jumpSound = new sound("jump_start.mp3");
-    landSound = new sound("jump_land.mp3");
-    walkSound = new sound("Walking.mp3");
+    jumpSound = new sound(getResourcePath("jump_start.mp3"));
+    landSound = new sound(getResourcePath("jump_land.mp3"));
+    walkSound = new sound(getResourcePath("Walking.mp3"));
     platforms.push(new platform(260, 290));
     tiles.push(new tile(level1[0],270,160,2));    // the first tile must start in the middle, big
     background.slots[1].acceptTile(tiles[0].platforms);
