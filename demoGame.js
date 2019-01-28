@@ -4,6 +4,7 @@
    Share & Share Alike
    */
 
+/* Globals */
 var player1;
 var win = 0;
 var platforms = [];
@@ -17,103 +18,17 @@ var startSlotNum = -1;
 var pickup = -1;
 var counter = 0;
 var credits;
+var tiles = [];
+var background;
+var level = level1;
+
+/* Sound Globals */
 var bgMusic;
 var jumpSound;
 var landSound;
 var walkSound;
 var pickupSound;
-var level1 = [[[0,0,0,0,0],
-    [0,0,0,0,0],
-    [0,0,0,0,0],
-    [0,0,0,0,0],
-    [0,0,0,0,0],
-    [2,3,0,0,0]],
 
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,9],
-        [0,0,0,0,1]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,2,3,0],
-        [0,0,0,0,0],
-        [0,2,3,0,0]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,10,0,0],
-        [0,0,1,0,0],
-        [0,0,7,0,0]],
-
-    [[0,0,0,0,0],
-        [1,0,0,0,0],
-        [7,0,0,0,0],
-        [7,0,0,0,1],
-        [7,11,0,2,6],
-        [8,2,3,8,6]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,2,3,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,12,0,0],
-        [0,0,1,0,0]]];
-
-var level2 = [[[0,0,0,0,0],
-    [0,0,0,0,0],
-    [0,0,0,0,1],
-    [0,0,0,0,0],
-    [0,0,0,0,0],
-    [0,0,0,0,0]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,2,3],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,1]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [1,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,1,0],
-        [0,0,0,7,0]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [2,3,0,0,0]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,1],
-        [0,0,0,2,6],
-        [0,0,0,5,6],
-        [0,0,0,5,6]],
-
-    [[0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [2,3,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0]]];
-var tiles = [];
-var background;
 
 /* Return the full path to a resource. */
 function getResourcePath(name) {
@@ -137,13 +52,13 @@ function startGame() { // the html document index.html calls startGame()
     walkSound = new sound(getResourcePath("Walking.mp3"));
     pickupSound = new sound(getResourcePath("pickup_item_2.mp3"));
     platforms.push(new platform(260, 290));
-    tiles.push(new tile(level1[0],270,160,2));    // the first tile must start in the middle, big
+    tiles.push(new tile(level[0],270,160,2));    // the first tile must start in the middle, big
     background.slots[1].acceptTile(tiles[0].platforms);
     credits = new credits();
 
     var x = 20;
-    for (var i = 1; i<level1.length; i++){
-        tiles.push(new tile(level1[i],x,20,1));
+    for (var i = 1; i<level.length; i++){
+        tiles.push(new tile(level[i],x,20,1));
         x += 120;    
     }
 
@@ -169,13 +84,6 @@ var myGameArea = {
 }
 
 function sound(src) {
-    // this.sound = document.createElement("audio");
-    // this.sound.src = src;
-    // this.sound.setAttribute("preload", "auto");
-    // this.sound.setAttribute("controls", "none");
-    // this.sound.style.display = "none";
-    // document.body.appendChild(this.sound);
-    //
     this.sound = new Howl({
         src: [src]
     });
