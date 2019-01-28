@@ -8,6 +8,8 @@ var player1;
 var platforms = [];
 var apples = new Set();
 var mText;
+var nextLeafAt = 50;
+var leaves = [];
 var startTileX = -1;
 var startTileY = -1;
 var startSlotNum = -1;
@@ -505,24 +507,23 @@ function player(width, height, image, x, y) {
 			slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
 			slot.cBoxes[i][1] < this.y + this.height -10){
 			if (slot.cBoxes[i][4] === 12){ //house
-                if (this.apples == 3) {
-                    win = 1;
-                    window.location.replace("credits.html");
-                }
-			} else {
-			
-			//index is slot.cBoxes[i][4]
-			for (let apple of apples){
-			    //console.log(apple.num, slot.cBoxes[i][4]);
-			    if (apple.num === slot.cBoxes[i][4]){
-				apple.num = 0;
+			    if (this.apples == 3) {
+				win = 1;
+				window.location.replace("credits.html");
 			    }
-			    //slot.cBoxes.splice(i,1);    
-			    //console.log(apple.num);
-			}
+			} else {
+			    
+			    //index is slot.cBoxes[i][4]
+			    for (let apple of apples){
+				//console.log(apple.num, slot.cBoxes[i][4]);
+				if (apple.num === slot.cBoxes[i][4]){
+				    apple.num = 0; // remove apple type
+				}
+				//slot.cBoxes.splice(i,1);    
+				//console.log(apple.num);
+			    }
 			}
 			return 1;
-			
 		    }
 		}
 	    }
@@ -600,11 +601,9 @@ function apple(x,y,num){
 		//    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
 	    } else {
 		this.image.src = "Apple" + 1 + ".png";
-		
 	    }
 	    ctx.drawImage(this.image, dx, dy, height, width);		
 	}
-
     }
     
     this.touchingPlayer = function(){
@@ -620,13 +619,34 @@ function apple(x,y,num){
     }
 }
 
+function leaf(){
+    this.image = new Image();
+    this.image.src = "Leaf.png";
+    this.x = Math.random()*720;
+    this.y = 0;
+    this.width = Math.floor(Math.random()*25)+25;
+    this.height = this.width;
+    
+    this.changeX = Math.random()*3;
+    this.changeY = Math.sqrt(16-Math.pow(this.changeX,2));
+
+    this.update = function(){
+	this.x += this.changeX;
+	this.y += this.changeY;
+	ctx = myGameArea.context;
+	ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+	console.log(this.x);    
+    }
+}
+
 function updateGameArea() {
     myGameArea.clear();
     myGameArea.frameNumber += 1;
     background.update();
-    if (myGameArea.frameNumber % 20 === 0) { // add a new raindrop every 20 frames
-	//player1.nextImage();
-	//console.log("next");
+
+    if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
+	nextLeafAt = Math.floor(Math.random()*50)+50 + myGameArea.frameNumber; //chose a new time
+	leaves.push(new leaf);
     }
     
     player1.changeX = 0; // player controls
@@ -648,15 +668,10 @@ function updateGameArea() {
     
     for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
         platforms[i].update();      
-	
-    	/*	else if (platforms[i].y == myGameArea.height) { //remove if at bottom of screen
-		
-		} else { //remove and add point if touching player1
-		platforms.splice(i,1); 
-		counter += 1;     
-		}
-	*/
     }
+    
+
+
     for (j = 0; j < tiles.length; j++){
 	if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)){ // touching mouse
 	    
@@ -747,5 +762,13 @@ function updateGameArea() {
     //mText.text="yv: " + player1.changeY; //update score
     //mText.update();
     player1.update(); // update player1
+
+    for (k = leaves.length-1; k >=0; k -=1){
+	if (leaves[k].y > 340) {
+	    leaves.splice(k,1); 
+	} else { 
+	    leaves[k].update();
+	}
+    }
 }
 

@@ -6,8 +6,9 @@
 
 var player1;
 var platforms = [];
-var apples = [];
+var apples = new Set();
 var mText;
+var leaves = [];
 var startTileX = -1;
 var startTileY = -1;
 var startSlotNum = -1;
@@ -16,6 +17,7 @@ var counter = 0;
 var bgMusic;
 var jumpSound;
 var landSound;
+var walkSound;
 var level1 = [[[0,0,0,0,0],
 	       [0,0,0,0,0],
 	       [0,0,0,0,0],
@@ -118,13 +120,15 @@ function startGame() { // the html document index.html calls startGame()
     bgMusic.play();
     jumpSound = new sound("jump_start.mp3");
     landSound = new sound("jump_land.mp3");
+    walkSound = new sound("Walking.mp3");
     platforms.push(new platform(260, 290));
     tiles.push(new tile(level1[0],270,160,2));    // the first tile must start in the middle, big
     background.slots[1].acceptTile(tiles[0].platforms);
+
     var x = 20;
     for (var i = 1; i<level1.length; i++){
-	tiles.push(new tile(level1[i],x,20,1));
-	x += 120;    
+        tiles.push(new tile(level1[i],x,20,1));
+        x += 120;    
     }
 
     player1 = new player(40, 49, "Idle.png", 290, myGameArea.canvas.height-200);
@@ -135,16 +139,16 @@ var myGameArea = {
     start : function() {
         this.context = this.canvas.getContext("2d");
         this.frameNumber = 0;
-	this.keys = new Set();
+        this.keys = new Set();
         this.interval = setInterval(updateGameArea, 20); //update every 20ms
-	//listen for when the user pushes key
-	window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
-	window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
-	window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+        //listen for when the user pushes key
+        window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+        window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
+        window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
         window.addEventListener('keydown', function (e) {myGameArea.keys.add(e.keyCode);})
         window.addEventListener('keyup', function (e) {myGameArea.keys.delete(e.keyCode);})}, 
     clear : function(){
-	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
     
@@ -156,13 +160,13 @@ function sound(src) {
     this.sound.style.display = "none";
     document.body.appendChild(this.sound);
     this.play = function(){
-	this.sound.play();
+        this.sound.play();
     }
     this.stop = function(){
-	this.sound.pause();
+        this.sound.pause();
     }
     this.loop = function(){
-	this.sound.loop = true;
+        this.sound.loop = true;
     }
 }
 
@@ -283,7 +287,7 @@ function tile(map, x, y, scale){
 	for (var j = map[i].length-1; j >=0; j--){  
 	    if (map[i][j] > 0){
 		if (map[i][j] >= 9) { // these are apples
-		  apples.push(new apple(j,i,map[i][j]));
+		  apples.add(new apple(j,i,map[i][j]));
 		}
 		this.platforms.push(new platform(j,i,map[i][j]));
 	    }
@@ -305,9 +309,19 @@ function tile(map, x, y, scale){
 		    this.image.src = "Tile" + map[i][j] + ".png"; // draw platforms
  		    //ctx.globalAlpha = 0.5;
 		    ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
+		} else if (map[i][j] === 12){
+		    for (let apple of apples){
+			if (apple.num === map[i][j]){
+			    apple.drawApple(this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);	
+			}			
+		    }	
 		} else if (map[i][j] >= 9){
-		    apples[map[i][j]].drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
-		    /*		    switch (map[i][j]){// draw apples
+		    for (let apple of apples){
+			if (apple.num === map[i][j]){
+			    apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+			}
+		    }
+            /*
 		    case 9:
 			this.image.src = "Apple1.png";
 		    ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
@@ -322,7 +336,7 @@ function tile(map, x, y, scale){
 			break;
 		    case 12:
 			this.image.src = "HouseClosed.png";
-		    ctx.drawImage(this.image, this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);		
+
 			break;
 			}*/
 
@@ -367,67 +381,70 @@ function player(width, height, image, x, y) {
     this.facing = "right";
     this.gravity = 0.08;
     this.gravitySpeed = 0;
+    this.walkCycle = ["Base.png", "Walk1.png", "Walk2.png", "Base.png", "Walk2.png", "Walk1.png"];
+    this.walkCycleFrame = 0;
+    this.walkCycleDelay = 7;
 
-    this.nextImage = function(){
-	if (this.image.src === "Base.png"){
-	    this.image.src = "Idle.png";
-	} else {
-	    this.image.src = "Base.png";
-	}
-	
+    this.nextImage = function() {
+        if (this.image.src === "Base.png"){
+            this.image.src = "Idle.png";
+        } else {
+            this.image.src = "Base.png";
+        }
+    }
+
+    this.advanceWalkCycle = function() {
+        if (this.walkCycleDelay != 0) {
+            this.walkCycleDelay -= 1;
+            return;
+        }
+        this.walkCycleFrame = (this.walkCycleFrame + 1) % this.walkCycle.length;
+        this.image.src = this.walkCycle[this.walkCycleFrame];
+        this.walkCycleDelay = 7;
     }
 
     this.moveRight = function() {
-	if (!this.collidingRight()){
-	    this.changeX = 1.8;
-	    this.facing = "right";
-	    if (this.image.src === "Walk1.png"){
-		this.image.src = "Walk2.png";
-	    } else {
-		this.image.src = "Walk1.png";
-	    }
-	}
+        if (!this.collidingRight()){
+            this.changeX = 1.8;
+            this.facing = "right";
+            this.advanceWalkCycle();
+        }
     }
 
     this.moveLeft = function() {
-	if (!this.collidingLeft()){
-	    this.changeX = -1.8;
-	    this.facing = "left";
-	    if (this.image.src === "Walk1.png"){
-		this.image.src = "Walk2.png";
-	    } else {
-		this.image.src = "Walk1.png";
-	    }	
-	}
+        if (!this.collidingLeft()){
+            this.changeX = -1.8;
+            this.facing = "left";
+            this.advanceWalkCycle();
+        }
     }
 
     this.update = function() {
 	
 	if (this.touchingApple()){
-	    //console.log("touching");
 	    this.apples++;
 	}
 	
 	switch (this.apples){
 	case 0:
-	this.basket.src = "Basket0.png";
-	break;
+        this.basket.src = "Basket0.png";
+        break;
 	case 1:
-	this.basket.src = "Basket1.png";
-	break;
+        this.basket.src = "Basket1.png";
+        break;
 	case 2:
-	this.basket.src = "Basket2.png";
-	break;
+        this.basket.src = "Basket2.png";
+        break;
 	case 3:
-	this.basket.src = "Basket3.png";
-	break;
+        this.basket.src = "Basket3.png";
+        break;
 	}
-
-
+	
+	
 	if (this.colliding()){
 	    if (this.gravitySpeed > 0){
-		landSound.play();
-		this.image.src = "Idle.png";
+            landSound.play();
+            this.image.src = "Idle.png";
 	    }
 	    this.gravitySpeed = 0;
 	}
@@ -459,9 +476,9 @@ function player(width, height, image, x, y) {
 			  this.width, this.height);
 	    
 	    //if (this.state === "jump"){
-		//ctx.rotate(15);
-		//}
-	       
+	    //ctx.rotate(15);
+	    //}
+	    
 	    ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
 	    //ctx.rotate(0);
 	} else  {
@@ -471,7 +488,7 @@ function player(width, height, image, x, y) {
 			  this.y,
 			  this.width, this.height);
 	    //if (this.state === "jump"){
-		//ctx.rotate(15);
+	    //ctx.rotate(15);
 	    //}	
 	    ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
 	    //ctx.rotate(0);
@@ -479,16 +496,32 @@ function player(width, height, image, x, y) {
 	ctx.restore();   
 	
     }
-
+    
     this.touchingApple = function(){
-	for (let slot of background.slots){
-	    for (var i = 0; i<slot.cBoxes.length; i++){
-		if (slot.cBoxes[i][4] >=9){
-		    //console.log(cBox);
+	for (let slot of background.slots){ // all the slots
+	    for (var i = 0; i<slot.cBoxes.length; i++){ // all the platforms
+		if (slot.cBoxes[i][4] >=9){ // platform type
+		    console.log(slot.cBoxes[i][4]);
 		    if (slot.cBoxes[i][0] < this.x + this.width &&
 			slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
 			slot.cBoxes[i][1] < this.y + this.height -10){
-			slot.cBoxes.splice(i,1);    
+			if (slot.cBoxes[i][4] === 12){ //house
+			    if (this.apples == 3) {
+				win = 1;
+				window.location.replace("credits.html");
+			    }
+			} else {
+			    
+			    //index is slot.cBoxes[i][4]
+			    for (let apple of apples){
+				//console.log(apple.num, slot.cBoxes[i][4]);
+				if (apple.num === slot.cBoxes[i][4]){
+				    apple.num = 0; // remove apple type
+				}
+				//slot.cBoxes.splice(i,1);    
+				//console.log(apple.num);
+			    }
+			}
 			return 1;
 			
 		    }
@@ -497,7 +530,7 @@ function player(width, height, image, x, y) {
 	}
 	return 0;
     }
-
+    
     this.collidingRight = function(){
 	for (let slot of background.slots) {
 	    for (let cBox of slot.cBoxes){ //look at every platform
@@ -513,7 +546,7 @@ function player(width, height, image, x, y) {
 	}
 	return 0;
     }
-
+    
     this.collidingLeft = function(){
 	for (let slot of background.slots) {
 	    for (let cBox of slot.cBoxes){ //look at every platform
@@ -561,11 +594,20 @@ function apple(x,y,num){
 	
     }
     
-    this.drawApple(dx,dy,height,width){
-	this.image.src = "Apple" + num-8 + ".png";
-	ctx.drawImage(this.image, dx, dy, height, width);		
-    }
+    this.drawApple = function(dx,dy,height,width){
+	if (this.num >= 9){
+	    if (this.num === 12){
+		this.image.src = "HouseClosed.png";
+		//    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
+	    } else {
+		this.image.src = "Apple" + 1 + ".png";
+		
+	    }
+	    ctx.drawImage(this.image, dx, dy, height, width);		
+	}
 
+    }
+    
     this.touchingPlayer = function(){
 	if (this.x < player1.x + player1.width &&
 	    this.x + this.width > player1.x &&
@@ -577,49 +619,63 @@ function apple(x,y,num){
 	    return 0;
 	}
     }
+}
 
+function credits(){
+}
+
+function leaf(){
+    this.image = new Image();
+    this.image.src = "Leaf.png";
+    this.x = Math.random()*720;
+    this.y = 0;
+    this.changeX = Math.random()*5 +1;
+    this.changeY = Math.random()*5 +1;
+
+    this.update = function(){
+	this.x += this.changeX;
+	this.y += this.changeY;
+	ctx = myGameArea.context;
+	ctx.drawImage(this.image, this.x, this.y, 50, 50);
+	console.log(this.x);
+    
+    }
 }
 
 function updateGameArea() {
     myGameArea.clear();
     myGameArea.frameNumber += 1;
     background.update();
-    if (myGameArea.frameNumber % 20 === 0) { // add a new raindrop every 20 frames
-	//player1.nextImage();
-	//console.log("next");
+    if (myGameArea.frameNumber % 40 === 0) { // add a new leaf every 40 frames
+	leaves.push(new leaf);
     }
     
     player1.changeX = 0; // player controls
     
     if (myGameArea.keys.has(37)) { // left arrow pushed
-	player1.moveLeft();
+        player1.moveLeft();
     }
     if (myGameArea.keys.has(39)) { // right arrow pushed
-	player1.moveRight();
+        player1.moveRight();
     }
     if (myGameArea.keys.has(32)) {// space bar pushed
-	if (player1.colliding()){
-	    jumpSound.play();
-	    player1.image.src = "Jump.png";
-	    player1.state = "jump";
-	    player1.changeY = -3.8;
-	}
+        if (player1.colliding()){
+            jumpSound.play();
+            player1.image.src = "Jump.png";
+            player1.state = "jump";
+            player1.changeY = -3.8;
+        }
     }
-
+    
     for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
-	platforms[i].update();      
-	
-    	/*	else if (platforms[i].y == myGameArea.height) { //remove if at bottom of screen
-	    
-	} else { //remove and add point if touching player1
-	    platforms.splice(i,1); 
-	    counter += 1;     
-	}
-	*/
+        platforms[i].update();      
     }
+    
+
+
     for (j = 0; j < tiles.length; j++){
 	if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)){ // touching mouse
-
+	    
 	    if (myGameArea.mouseX > tiles[j].x && 
 		myGameArea.mouseX < tiles[j].x+120*tiles[j].scale 
 		&& myGameArea.mouseY >tiles[j].y 
@@ -707,5 +763,13 @@ function updateGameArea() {
     //mText.text="yv: " + player1.changeY; //update score
     //mText.update();
     player1.update(); // update player1
+
+    for (k = leaves.length-1; i >=0; i -=1){
+	if (leaves[k].y > 340) {
+	    leaves.splice(k,1); 
+	} else { 
+	    leaves[k].update();
+	}
+    }
 }
 
