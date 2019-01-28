@@ -549,7 +549,7 @@ function player(width, height, image, x, y) {
 	for (let slot of background.slots) {
 	    for (let cBox of slot.cBoxes){ //look at every platform
 		//console.log(cBox[4]);
-		if (cBox[4] != "apple"){
+		if (cBox[4] < 9){
 		    if (cBox[0] < this.x + this.width &&
 			cBox[0] > this.x &&
 			cBox[1] < this.y + this.height -10){
@@ -564,7 +564,7 @@ function player(width, height, image, x, y) {
     this.collidingLeft = function(){
 	for (let slot of background.slots) {
 	    for (let cBox of slot.cBoxes){ //look at every platform
-		if (cBox[4] != "apple"){
+		if (cBox[4] < 9){
 		    if (cBox[0] + 45 > this.x &&
 			cBox[0] + 45 < this.x + this.width&&
 			cBox[1] < this.y + this.height -10){
