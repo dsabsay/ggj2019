@@ -5,6 +5,7 @@
  */
 
 var player1;
+var win = 0;
 var platforms = [];
 var apples = new Set();
 var mText;
@@ -15,6 +16,7 @@ var startTileY = -1;
 var startSlotNum = -1;
 var pickup = -1;
 var counter = 0;
+var credits;
 var bgMusic;
 var jumpSound;
 var landSound;
@@ -134,7 +136,8 @@ function startGame() { // the html document index.html calls startGame()
     platforms.push(new platform(260, 290));
     tiles.push(new tile(level1[0],270,160,2));    // the first tile must start in the middle, big
     background.slots[1].acceptTile(tiles[0].platforms);
-
+    credits = new credits();
+    
     var x = 20;
     for (var i = 1; i<level1.length; i++){
         tiles.push(new tile(level1[i],x,20,1));
@@ -386,7 +389,6 @@ function player(width, height, image, x, y) {
     this.changeY = 0;    
     this.x = x;
     this.y = y;
-    this.apples = 0;
     this.state = "idle";
     this.facing = "right";
     this.gravity = 0.08;
@@ -432,20 +434,21 @@ function player(width, height, image, x, y) {
     this.update = function() {
 	
 	if (this.touchingApple()){
-	    this.apples++;
+	    //this.apples++;
+	    //console.log(this.apples);
 	}
 	
-	switch (this.apples){
-	case 0:
+	switch (apples.size){
+	case 4:
         this.basket.src = "Basket0.png";
         break;
-	case 1:
+	case 3:
         this.basket.src = "Basket1.png";
         break;
 	case 2:
         this.basket.src = "Basket2.png";
         break;
-	case 3:
+	case 1:
         this.basket.src = "Basket3.png";
         break;
 	}
@@ -511,14 +514,14 @@ function player(width, height, image, x, y) {
 	for (let slot of background.slots){ // all the slots
 	    for (var i = 0; i<slot.cBoxes.length; i++){ // all the platforms
 		if (slot.cBoxes[i][4] >=9){ // platform type
-		    console.log(slot.cBoxes[i][4]);
+		    //console.log(slot.cBoxes[i][4]);
 		    if (slot.cBoxes[i][0] < this.x + this.width &&
 			slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
 			slot.cBoxes[i][1] < this.y + this.height -10){
 			if (slot.cBoxes[i][4] === 12){ //house
-			    if (this.apples == 3) {
-				win = 1;
-				window.location.replace("credits.html");
+			    if (apples.size === 1) {
+				win = 1; // you win
+				//window.location.replace("credits.html");
 			    }
 			} else {
 			    
@@ -527,6 +530,8 @@ function player(width, height, image, x, y) {
 				//console.log(apple.num, slot.cBoxes[i][4]);
 				if (apple.num === slot.cBoxes[i][4]){
 				    apple.num = 0; // remove apple type
+				    apples.delete(apple);
+				    //console.log(apples.size);
 				}
 				//slot.cBoxes.splice(i,1);    
 				//console.log(apple.num);
@@ -589,6 +594,23 @@ function player(width, height, image, x, y) {
     }
 }
 
+function credits(){
+    ctx = myGameArea.context;
+    this.image = new Image();
+    this.image.src = "Credits.png";
+    this.x = 0;
+    this.y = 0;
+    
+    this.update = function(){
+	if (win === 1){
+	    ctx.drawImage(this.image, this.x, this.y, 760, 1500);
+	    if (this.y > -1150){
+		this.y -= 1;
+	    }
+	}
+    }
+}
+
 function apple(x,y,num){
     this.x = x;
     this.y = y;
@@ -644,7 +666,7 @@ function leaf(){
 	this.y += this.changeY;
 	ctx = myGameArea.context;
 	ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-	console.log(this.x);    
+	//console.log(this.x);    
     }
 }
 
@@ -771,7 +793,9 @@ function updateGameArea() {
     //mText.text="yv: " + player1.changeY; //update score
     //mText.update();
     player1.update(); // update player1
-
+    
+    credits.update();
+    
     for (k = leaves.length-1; k >=0; k -=1){
 	if (leaves[k].y > 340) {
 	    leaves.splice(k,1); 
