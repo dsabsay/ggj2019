@@ -9,6 +9,8 @@ var player1;
 var win = 0;
 var platforms = [];
 var apples = new Set();
+var tinyLeaves = [];
+var aleaf;
 var mText;
 var nextLeafAt = 50;
 var leaves = [];
@@ -63,6 +65,7 @@ function startGame() { // the html document index.html calls startGame()
     }
 
     player1 = new player(40, 49, "Idle.png", 290, myGameArea.canvas.height-200);
+    
 }
 
 var myGameArea = {
@@ -131,14 +134,7 @@ function bg(){
         // draw bg image
         ctx = myGameArea.context; 
         ctx.drawImage(this.bgImage, 0, -100, 760, 500);
-        /*this.x = 50
-    for (var i=0; i<3; i++){
-        this.slots.push(new slot(this.x, this.y, this.width, this.height));
-        ctx = myGameArea.context;
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        this.x+=this.width+this.gap;
-        }*/    
+
         for (var j=0; j<this.slots.length; j++){
             this.slots[j].update();
         }
@@ -172,7 +168,7 @@ function slot(x,y,width,height){
         ctx = myGameArea.context;
         ctx.lineWidth = 0.5;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = "blue";
+        //ctx.fillStyle = "blue";
         //	for (var i=0; i < this.cBoxes.length; i++){
         //   ctx.fillRect(this.cBoxes[i][0], this.cBoxes[i][1], this.cBoxes[i][2], this.cBoxes[i][3]);
         //}
@@ -249,26 +245,7 @@ function tile(map, x, y, scale){
                             apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
                         }
                     }
-                    /*
-            case 9:
-            this.image.src = "Apple1.png";
-            ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
-            break;
-            case 10:
-            this.image.src = "Apple2.png";
-            ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
-            break;
-            case 11:
-            this.image.src = "Apple3.png";
-            ctx.drawImage(this.image, this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
-            break;
-            case 12:
-            this.image.src = "HouseClosed.png";
-
-            break;
-            }*/
-
-                }
+		}
                 this.drawx += this.width*this.scale-4*this.scale;
             }
             this.drawx = this.x;
@@ -423,6 +400,9 @@ function player(width, height, image, x, y) {
         if (this.colliding()){
             if (this.gravitySpeed > 0){
                 landSound.play();
+		for(var i = 0; i < Math.ceil(Math.random()*4); i++){
+		    tinyLeaves.push(new tinyLeaf(this.x+Math.random()*this.width, this.y+this.height*0.75));
+		}
                 this.image.src = "Idle.png";
             }
             this.gravitySpeed = 0;
@@ -459,7 +439,7 @@ function player(width, height, image, x, y) {
             //}
 
             ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
-            //ctx.rotate(0);
+            
         } else  {
             ctx.scale(1,1);
             ctx.drawImage(this.image, 
@@ -470,7 +450,7 @@ function player(width, height, image, x, y) {
             //ctx.rotate(15);
             //}	
             ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
-            //ctx.rotate(0);
+            
         }
         ctx.restore();   
 
@@ -649,11 +629,43 @@ function leaf(){
     }
 }
 
+function tinyLeaf(x,y){
+    this.image = new Image();
+    this.image.src = "Leaf.png";
+    this.gravity = 0.03;
+    this.age = 0;
+    this.maxAge = Math.floor(Math.random()*50)+40;
+    
+    this.x = x;
+    this.y = y;
+    this.rotation = Math.random()*360;
+    this.width = 10;
+    this.height = this.width;
+    this.changeR = Math.random()*3 - 1.5;
+    this.changeX = Math.random()*2 -1;
+    this.changeY = -Math.random();
+    
+    this.update = function(){
+	this.age++;
+	this.x += this.changeX;
+	this.y += this.changeY;
+	this.rotation += this.changeR;
+	ctx = myGameArea.context;
+	ctx.save();
+	ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
+	ctx.rotate(this.rotation * Math.PI / 180);
+	ctx.drawImage(this.image, 0,0, this.width, this.height);
+	ctx.restore();
+	this.changeY += this.gravity;
+    }
+}
+
 function updateGameArea() {
     myGameArea.clear();
     myGameArea.frameNumber += 1;
     background.update();
-
+    
+    
     if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
 	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
 	leaves.push(new leaf);
@@ -782,5 +794,14 @@ function updateGameArea() {
             leaves[k].update();
         }
     }
+    
+    for (t = 0; t < tinyLeaves.length; t++){
+	if (tinyLeaves[t].age < tinyLeaves[t].maxAge){
+	    tinyLeaves[t].update();
+	} else {
+	    tinyLeaves.splice(t,1);
+	}
+    }
+
 }
 
