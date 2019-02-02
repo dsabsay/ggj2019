@@ -24,7 +24,7 @@ var counter = 0;
 var credits;
 var tiles = [];
 var background;
-var level = level1;
+var level = level2;
 
 /* Sound Globals */
 var bgMusic;
