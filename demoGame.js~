@@ -840,6 +840,14 @@ function updateGameArea() {
     //mText.update();
     player1.update(); // update player1
 
+    for (t = 0; t < tinyLeaves.length; t++){ // don't draw tinyleaves over credits
+	if (tinyLeaves[t].age < tinyLeaves[t].maxAge){
+	    tinyLeaves[t].update();
+	} else {
+	    tinyLeaves.splice(t,1);
+	}
+    }
+
     credits.update();
 
 
@@ -852,13 +860,7 @@ function updateGameArea() {
         }
     }
     
-    for (t = 0; t < tinyLeaves.length; t++){
-	if (tinyLeaves[t].age < tinyLeaves[t].maxAge){
-	    tinyLeaves[t].update();
-	} else {
-	    tinyLeaves.splice(t,1);
-	}
-    }
+
 
 }
 
