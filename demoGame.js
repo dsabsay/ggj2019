@@ -13,7 +13,9 @@ var tinyLeaves = [];
 var aleaf;
 var mText;
 var nextLeafAt = 50;
+var nextCloudAt = 20;
 var leaves = [];
+var clouds = [];
 var startTileX = -1;
 var startTileY = -1;
 var startSlotNum = -1;
@@ -63,7 +65,11 @@ function startGame() { // the html document index.html calls startGame()
         tiles.push(new tile(level[i],x,20,1));
         x += 120;    
     }
-
+    
+    for (j = 1; j < 8; j++){
+	clouds.push(new cloud('r'));
+    }
+    
     player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
     
 }
@@ -216,8 +222,8 @@ function tile(map, x, y, scale){
     this.image = new Image();
     this.Twidth = 100;
     this.Theight = 80;
-    this.bgImage = new Image();
-    this.bgImage.src = "Cloud1.png";
+    //this.bgImage = new Image();
+    //this.bgImage.src = "Cloud1.png";
 
     for (var i = 0; i<map.length; i++){ // populate platform array
         for (var j = map[i].length-1; j >=0; j--){  
@@ -235,7 +241,7 @@ function tile(map, x, y, scale){
         ctx.lineWidth = 0.5;
         //ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
         ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
-        ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
+        //ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
 
         this.drawx = this.x-2*this.scale;
         this.drawy = this.y;
@@ -596,7 +602,7 @@ function apple(x,y,num){
                 this.image.src = "HouseClosed.png";
                 //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
             } else {
-                this.image.src = "Apple" + 1 + ".png";
+                this.image.src = "Apple" + (this.num-8) + ".png";
             }
             ctx.drawImage(this.image, dx, dy, height, width);		
         }
@@ -612,6 +618,29 @@ function apple(x,y,num){
         else {
             return 0;
         }
+    }
+}
+
+function cloud(type){
+    this.image = new Image();
+    this.image.src = "Cloud" + Math.ceil(Math.random()*3) + ".png";
+    this.width = Math.floor(Math.random()*150)+100;
+    this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
+    
+    if (type === 'r'){
+	this.x = Math.floor(Math.random()*myGameArea.width);
+    } else { 
+	this.x = -this.width;
+    }
+    
+    this.y = Math.floor(Math.random()*120);
+    
+    this.changeX = Math.random()+0.2;
+
+    this.update = function(){
+	this.x += this.changeX;
+	ctx = myGameArea.context;
+	ctx.drawImage(this.image, this.x,this.y, this.width, this.height);
     }
 }
 
@@ -681,7 +710,20 @@ function updateGameArea() {
     
     if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
 	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
-	leaves.push(new leaf);
+	leaves.push(new leaf());
+    }
+
+    if (myGameArea.frameNumber === nextCloudAt) { // wait until ready
+	nextCloudAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
+	clouds.push(new cloud('n'));
+    }
+
+    for (c = clouds.length-1; c >=0; c -=1){
+        if (clouds[c].x > myGameArea.width) {
+            clouds.splice(c,1); 
+        } else { 
+            clouds[c].update();
+        }
     }
 
     player1.changeX = 0; // player controls
@@ -799,6 +841,8 @@ function updateGameArea() {
     player1.update(); // update player1
 
     credits.update();
+
+
 
     for (k = leaves.length-1; k >=0; k -=1){
         if (leaves[k].y > 340) {

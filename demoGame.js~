@@ -13,7 +13,9 @@ var tinyLeaves = [];
 var aleaf;
 var mText;
 var nextLeafAt = 50;
+var nextCloudAt = 0;
 var leaves = [];
+var clouds = [];
 var startTileX = -1;
 var startTileY = -1;
 var startSlotNum = -1;
@@ -64,17 +66,26 @@ function startGame() { // the html document index.html calls startGame()
         x += 120;    
     }
 
-    player1 = new player(40, 49, "Idle.png", 290, myGameArea.canvas.height-200);
+    player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
     
 }
 
 var myGameArea = {
     canvas : document.getElementById("gameArea"), // "gameArea" is what the canvas is called in the html document index.html
     start : function() {
-        this.context = this.canvas.getContext("2d");
-	this.canvas.width *=2;
-	this.canvas.height *=2;
+
+	this.width = this.canvas.width;
+	this.height = this.canvas.height;
+        
+	this.canvas.style.width = this.canvas.width + "px"; // set pretty pixels through sorcery
+	this.canvas.style.height = this.canvas.height + "px";
+	this.canvas.width *= window.devicePixelRatio || 1;
+	this.canvas.height *= window.devicePixelRatio || 1;
+		
+	this.context = this.canvas.getContext("2d");	
 	this.context.scale(2,2);
+
+
         this.frameNumber = 0;
         this.keys = new Set();
         this.interval = setInterval(updateGameArea, 20); //update every 20ms
@@ -207,8 +218,8 @@ function tile(map, x, y, scale){
     this.image = new Image();
     this.Twidth = 100;
     this.Theight = 80;
-    this.bgImage = new Image();
-    this.bgImage.src = "Cloud1.png";
+    //this.bgImage = new Image();
+    //this.bgImage.src = "Cloud1.png";
 
     for (var i = 0; i<map.length; i++){ // populate platform array
         for (var j = map[i].length-1; j >=0; j--){  
@@ -226,9 +237,9 @@ function tile(map, x, y, scale){
         ctx.lineWidth = 0.5;
         //ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
         ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
-        ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
+        //ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
 
-        this.drawx = this.x;
+        this.drawx = this.x-2*this.scale;
         this.drawy = this.y;
         for (var i = 0; i < map.length; i++){
             for (var j = 0; j < map[i].length; j++){
@@ -251,7 +262,7 @@ function tile(map, x, y, scale){
 		}
                 this.drawx += this.width*this.scale-4*this.scale;
             }
-            this.drawx = this.x;
+            this.drawx = this.x-2*this.scale;
             this.drawy += this.height*this.scale-4*this.scale;
         }
     }
@@ -587,7 +598,7 @@ function apple(x,y,num){
                 this.image.src = "HouseClosed.png";
                 //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
             } else {
-                this.image.src = "Apple" + 1 + ".png";
+                this.image.src = "Apple" + (this.num-8) + ".png";
             }
             ctx.drawImage(this.image, dx, dy, height, width);		
         }
@@ -603,6 +614,23 @@ function apple(x,y,num){
         else {
             return 0;
         }
+    }
+}
+
+function cloud(){
+    this.image = new Image();
+    this.image.src = "Cloud1.png";
+    this.x = 0;
+    this.y = 100;
+    this.width = 200;
+    this.height = this.width*0.5;
+    
+    this.changeX = 5;
+
+    this.update = function(){
+	this.x += this.changeX;
+	ctx = myGameArea.context;
+	ctx.drawImage(this.image, this.x,this.y, this.width, this.height);
     }
 }
 
@@ -673,6 +701,11 @@ function updateGameArea() {
     if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
 	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
 	leaves.push(new leaf);
+    }
+
+    if (myGameArea.frameNumber === nextCloudAt) { // wait until ready
+	nextCloudAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
+	clouds.push(new cloud);
     }
 
     player1.changeX = 0; // player controls
@@ -790,6 +823,14 @@ function updateGameArea() {
     player1.update(); // update player1
 
     credits.update();
+
+    for (c = clouds.length-1; c >=0; c -=1){
+        if (clouds[c].x > myGameArea.width) {
+            clouds.splice(c,1); 
+        } else { 
+            clouds[c].update();
+        }
+    }
 
     for (k = leaves.length-1; k >=0; k -=1){
         if (leaves[k].y > 340) {
