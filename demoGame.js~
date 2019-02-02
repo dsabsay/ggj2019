@@ -13,7 +13,7 @@ var tinyLeaves = [];
 var aleaf;
 var mText;
 var nextLeafAt = 50;
-var nextCloudAt = 0;
+var nextCloudAt = 20;
 var leaves = [];
 var clouds = [];
 var startTileX = -1;
@@ -65,7 +65,11 @@ function startGame() { // the html document index.html calls startGame()
         tiles.push(new tile(level[i],x,20,1));
         x += 120;    
     }
-
+    
+    for (j = 1; j < 8; j++){
+	clouds.push(new cloud('r'));
+    }
+    
     player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
     
 }
@@ -617,15 +621,21 @@ function apple(x,y,num){
     }
 }
 
-function cloud(){
+function cloud(type){
     this.image = new Image();
-    this.image.src = "Cloud1.png";
-    this.x = 0;
-    this.y = 100;
-    this.width = 200;
-    this.height = this.width*0.5;
+    this.image.src = "Cloud" + Math.ceil(Math.random()*3) + ".png";
+    this.width = Math.floor(Math.random()*150)+100;
+    this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
     
-    this.changeX = 5;
+    if (type === 'r'){
+	this.x = Math.floor(Math.random()*myGameArea.width);
+    } else { 
+	this.x = -this.width;
+    }
+    
+    this.y = Math.floor(Math.random()*120);
+    
+    this.changeX = Math.random()+0.2;
 
     this.update = function(){
 	this.x += this.changeX;
@@ -700,12 +710,20 @@ function updateGameArea() {
     
     if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
 	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
-	leaves.push(new leaf);
+	leaves.push(new leaf());
     }
 
     if (myGameArea.frameNumber === nextCloudAt) { // wait until ready
 	nextCloudAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
-	clouds.push(new cloud);
+	clouds.push(new cloud('n'));
+    }
+
+    for (c = clouds.length-1; c >=0; c -=1){
+        if (clouds[c].x > myGameArea.width) {
+            clouds.splice(c,1); 
+        } else { 
+            clouds[c].update();
+        }
     }
 
     player1.changeX = 0; // player controls
@@ -824,13 +842,7 @@ function updateGameArea() {
 
     credits.update();
 
-    for (c = clouds.length-1; c >=0; c -=1){
-        if (clouds[c].x > myGameArea.width) {
-            clouds.splice(c,1); 
-        } else { 
-            clouds[c].update();
-        }
-    }
+
 
     for (k = leaves.length-1; k >=0; k -=1){
         if (leaves[k].y > 340) {
