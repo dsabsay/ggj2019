@@ -53,7 +53,7 @@ function startGame() { // the html document index.html calls startGame()
     landSound = new sound(getResourcePath("jump_land.mp3"));
     walkSound = new sound(getResourcePath("Walking.mp3"));
     pickupSound = new sound(getResourcePath("pickup_item_2.mp3"));
-    platforms.push(new platform(260, 290));
+    //platforms.push(new platform(260, 290));
     tiles.push(new tile(level[0],270,160,2));    // the first tile must start in the middle, big
     background.slots[1].acceptTile(tiles[0].platforms);
     credits = new credits();
@@ -64,14 +64,26 @@ function startGame() { // the html document index.html calls startGame()
         x += 120;    
     }
 
-    player1 = new player(40, 49, "Idle.png", 290, myGameArea.canvas.height-200);
+    player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
     
 }
 
 var myGameArea = {
     canvas : document.getElementById("gameArea"), // "gameArea" is what the canvas is called in the html document index.html
     start : function() {
-        this.context = this.canvas.getContext("2d");
+
+	this.width = this.canvas.width;
+	this.height = this.canvas.height;
+        
+	this.canvas.style.width = this.canvas.width + "px"; // set pretty pixels through sorcery
+	this.canvas.style.height = this.canvas.height + "px";
+	this.canvas.width *= window.devicePixelRatio || 1;
+	this.canvas.height *= window.devicePixelRatio || 1;
+		
+	this.context = this.canvas.getContext("2d");	
+	this.context.scale(2,2);
+
+
         this.frameNumber = 0;
         this.keys = new Set();
         this.interval = setInterval(updateGameArea, 20); //update every 20ms
@@ -225,7 +237,7 @@ function tile(map, x, y, scale){
         ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
         ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
 
-        this.drawx = this.x;
+        this.drawx = this.x-2*this.scale;
         this.drawy = this.y;
         for (var i = 0; i < map.length; i++){
             for (var j = 0; j < map[i].length; j++){
@@ -248,7 +260,7 @@ function tile(map, x, y, scale){
 		}
                 this.drawx += this.width*this.scale-4*this.scale;
             }
-            this.drawx = this.x;
+            this.drawx = this.x-2*this.scale;
             this.drawy += this.height*this.scale-4*this.scale;
         }
     }
@@ -661,6 +673,7 @@ function tinyLeaf(x,y){
 }
 
 function updateGameArea() {
+    
     myGameArea.clear();
     myGameArea.frameNumber += 1;
     background.update();
