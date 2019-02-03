@@ -5,8 +5,9 @@
    */
 
 /* Globals */
+
 var player1;
-var win = 0;
+var levelComplete = 0;
 var platforms = [];
 var apples = new Set();
 var tinyLeaves = [];
@@ -24,8 +25,8 @@ var counter = 0;
 var credits;
 var tiles = [];
 var background;
-var level = level3;
-
+var level = 1;
+var levels = [level1, level2, level3];
 /* Sound Globals */
 var bgMusic;
 var jumpSound;
@@ -46,8 +47,7 @@ function getResourcePath(name) {
 
 function startGame() { // the html document index.html calls startGame()
     myGameArea.start();
-    background = new bg();
-    mText = new textBox("14px", "Helvetica", 100,120);
+    //mText = new textBox("14px", "Helvetica", 100,120);
     bgMusic = new sound(getResourcePath("main.mp3"));
     bgMusic.loop();
     bgMusic.play();
@@ -55,24 +55,42 @@ function startGame() { // the html document index.html calls startGame()
     landSound = new sound(getResourcePath("jump_land.mp3"));
     walkSound = new sound(getResourcePath("Walking.mp3"));
     pickupSound = new sound(getResourcePath("pickup_item_2.mp3"));
-    //platforms.push(new platform(260, 290));
-    tiles.push(new tile(level[0],270,160,2));    // the first tile must start in the middle, big
-    background.slots[1].acceptTile(tiles[0].platforms);
-    credits = new credits();
 
-    var x = 20;
-    for (var i = 1; i<level.length; i++){
-        tiles.push(new tile(level[i],x,20,1));
-        x += 120;    
-    }
-    
-    for (j = 1; j < 8; j++){
-	clouds.push(new cloud('r'));
-    }
-    
-    player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
-    
+    startLevel(1);
 }
+
+function startLevel(index){
+    //console.log("starting " + index);
+    if (index <= levels.length){
+	background = new bg();
+	tiles = [];
+	tiles.push(new tile(levels[index-1][0],270,160,2));    // the first tile must start in the middle, big
+	background.slots[1].acceptTile(tiles[0].platforms);
+	var x = 20;
+	for (var i = 1; i<levels[index-1].length; i++){
+	    tiles.push(new tile(levels[index-1][i],x,20,1));
+	    x += 120;    
+	}
+	
+	for (j = 1; j < 8; j++){
+	    clouds.push(new cloud('r'));
+	}
+	
+	if (player1){
+	    player1.x = 290;
+	    player1.y = myGameArea.height-200;
+	    player1.reset();
+	} else { 
+	    player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
+	}
+	
+    } else {
+	credits = new credits();
+    }
+    
+
+}
+
 
 var myGameArea = {
     canvas : document.getElementById("gameArea"), // "gameArea" is what the canvas is called in the html document index.html
@@ -299,23 +317,28 @@ function player(width, height, image, x, y) {
     this.changeY = 0;    
     this.x = x;
     this.y = y;
-    this.state = "idle";
-    this.facing = "right";
     this.gravity = 0.08;
-    this.gravitySpeed = 0;
     this.walkCycle = ["Base.png", "Walk1.png", "Walk2.png", "Base.png", "Walk2.png", "Walk1.png"];
-    this.walkCycleFrame = 0;
     this.walkCycleDelay = 7;
     this.pickupAnims = [
         ["Pick0A.png", "Pick0B.png"],
         ["Pick1A.png", "Pick1B.png"],
         ["Pick2A.png", "Pick2B.png"]
     ];
-    this.pickupAnimFrame = [0, 0];  /* a tuple of indexes for pickupAnims */
-    this.pickupAnimDelay = 7;
-    this.isPickingUp = false;
-    this.numApples = 0;
-    this.appleBeingPicked = null;
+
+    this.reset = function(){
+	this.state = "idle";
+	this.facing = "right";
+	this.gravitySpeed = 0;
+	this.walkCycleFrame = 0;
+	this.pickupAnimFrame = [0, 0];  /* a tuple of indices for pickupAnims */
+	this.pickupAnimDelay = 7;
+	this.isPickingUp = false;
+	this.numApples = 0;
+	this.appleBeingPicked = null;
+    }
+    
+    this.reset();
 
     this.nextImage = function() {
         if (this.image.src === "Base.png"){
@@ -376,16 +399,18 @@ function player(width, height, image, x, y) {
         }
         this.pickupAnimDelay = 7;
 
-        var animNum = this.pickupAnimFrame[0];
-        var frameNum = this.pickupAnimFrame[1];
-        frameNum += 1;
+	var animNum = this.pickupAnimFrame[0];
+	var frameNum = this.pickupAnimFrame[1];
+	frameNum += 1;
         /* Stop the animation after playing once. */
         if (frameNum == this.pickupAnims[animNum].length) {
             return this.endPickupAnimation();
-        }
+	}
+	//console.log(animNum, frameNum);
         this.image.src = this.pickupAnims[animNum][frameNum];
 
         this.pickupAnimFrame[1] = frameNum;  /* update the frame counter */
+	
     }
 
     this.update = function() {
@@ -394,11 +419,8 @@ function player(width, height, image, x, y) {
             this.advancePickupAnimation();
         }
 
-        if (this.touchingApple()){
-            //this.apples++;
-            //console.log(this.apples);
-        }
-
+	this.touchingApple();
+	
         switch (apples.size){
             case 4:
                 this.basket.src = "Basket0.png";
@@ -483,9 +505,12 @@ function player(width, height, image, x, y) {
                     if (slot.cBoxes[i][0] < this.x + this.width &&
                         slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
                         slot.cBoxes[i][1] < this.y + this.height -10){
-                        if (slot.cBoxes[i][4] === 12){ //house
-                            if (apples.size === 1) {
-                                win = 1; // you win
+                        if (slot.cBoxes[i][4] === 12){ // touching house
+                            if (apples.size === 1) { // all apples collected
+                                apples.clear();
+				level ++;
+				startLevel(level); //play next level
+				levelComplete += 1; // you win
                                 //window.location.replace("credits.html");
                             }
                         } else {
@@ -573,12 +598,10 @@ function credits(){
     this.y = 0;
 
     this.update = function(){
-        if (win === 1){
-            ctx.drawImage(this.image, this.x, this.y, 760, 1500);
-            if (this.y > -1150){
-                this.y -= 1;
-            }
-        }
+	ctx.drawImage(this.image, this.x, this.y, 760, 1500);
+	if (this.y > -1150){
+	    this.y -= 1;
+	}
     }
 }
 
@@ -847,9 +870,10 @@ function updateGameArea() {
 	    tinyLeaves.splice(t,1);
 	}
     }
-
-    credits.update();
-
+    
+    if (level > levels.length){
+	credits.update();
+    }
 
 
     for (k = leaves.length-1; k >=0; k -=1){
