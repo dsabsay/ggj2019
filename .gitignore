@@ -1,1 +1,6 @@
+# Editor stuff
 *.swp
+*~
+
+# System stuff
+.DS_Store

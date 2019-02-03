@@ -48,13 +48,13 @@ function getResourcePath(name) {
 function startGame() { // the html document index.html calls startGame()
     myGameArea.start();
     //mText = new textBox("14px", "Helvetica", 100,120);
-    bgMusic = new sound(getResourcePath("main.mp3"));
+    bgMusic = new sound(getResourcePath("assets/sound/main.mp3"));
     bgMusic.loop();
     bgMusic.play();
-    jumpSound = new sound(getResourcePath("jump_start.mp3"));
-    landSound = new sound(getResourcePath("jump_land.mp3"));
-    walkSound = new sound(getResourcePath("Walking.mp3"));
-    pickupSound = new sound(getResourcePath("pickup_item_2.mp3"));
+    jumpSound = new sound(getResourcePath("assets/sound/jump_start.mp3"));
+    landSound = new sound(getResourcePath("assets/sound/jump_land.mp3"));
+    walkSound = new sound(getResourcePath("assets/sound/Walking.mp3"));
+    pickupSound = new sound(getResourcePath("assets/sound/pickup_item_2.mp3"));
 
     startLevel(1);
 }
@@ -81,14 +81,12 @@ function startLevel(index){
 	    player1.y = myGameArea.height-200;
 	    player1.reset();
 	} else { 
-	    player1 = new player(40, 49, "Idle.png", 290, myGameArea.height-200);
+	    player1 = new player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
 	}
 	
     } else {
-	credits = new credits();
+        credits = new credits();
     }
-    
-
 }
 
 
@@ -158,7 +156,7 @@ function bg(){
     this.gap = 20;
     this.slots = [];
     this.bgImage = new Image();
-    this.bgImage.src = "Background.png";
+    this.bgImage.src = "assets/graphics/environment/Background.png";
     for (var i=0; i<3; i++){
         this.slots.push(new slot(this.x, this.y, this.width, this.height));
         ctx = myGameArea.context;
@@ -266,7 +264,7 @@ function tile(map, x, y, scale){
         for (var i = 0; i < map.length; i++){
             for (var j = 0; j < map[i].length; j++){
                 if (map[i][j] > 0 && map[i][j] < 9){
-                    this.image.src = "Tile" + map[i][j] + ".png"; // draw platforms
+                    this.image.src = "assets/graphics/tiles/Tile" + map[i][j] + ".png"; // draw platforms
                     //ctx.globalAlpha = 0.5;
                     ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
                 } else if (map[i][j] === 12){
@@ -309,7 +307,7 @@ function player(width, height, image, x, y) {
     this.image = new Image();
     this.image.src = image;  
     this.basket = new Image();
-    this.basket.src = "Basket0.png";
+    this.basket.src = "assets/graphics/player/Basket0.png";
     this.zIndex = 1000;
     this.width = width;
     this.height = height;
@@ -318,12 +316,19 @@ function player(width, height, image, x, y) {
     this.x = x;
     this.y = y;
     this.gravity = 0.08;
-    this.walkCycle = ["Base.png", "Walk1.png", "Walk2.png", "Base.png", "Walk2.png", "Walk1.png"];
+    this.walkCycle = [
+        "assets/graphics/player/Base.png",
+        "assets/graphics/player/Walk1.png",
+        "assets/graphics/player/Walk2.png",
+        "assets/graphics/player/Base.png",
+        "assets/graphics/player/Walk2.png",
+        "assets/graphics/player/Walk1.png"
+    ];
     this.walkCycleDelay = 7;
     this.pickupAnims = [
-        ["Pick0A.png", "Pick0B.png"],
-        ["Pick1A.png", "Pick1B.png"],
-        ["Pick2A.png", "Pick2B.png"]
+        ["assets/graphics/player/Pick0A.png", "assets/graphics/player/Pick0B.png"],
+        ["assets/graphics/player/Pick1A.png", "assets/graphics/player/Pick1B.png"],
+        ["assets/graphics/player/Pick2A.png", "assets/graphics/player/Pick2B.png"]
     ];
 
     this.reset = function(){
@@ -341,10 +346,10 @@ function player(width, height, image, x, y) {
     this.reset();
 
     this.nextImage = function() {
-        if (this.image.src === "Base.png"){
-            this.image.src = "Idle.png";
+        if (this.image.src === "assets/graphics/player/Base.png"){
+            this.image.src = "assets/graphics/player/Idle.png";
         } else {
-            this.image.src = "Base.png";
+            this.image.src = "assets/graphics/player/Base.png";
         }
     }
 
@@ -385,7 +390,7 @@ function player(width, height, image, x, y) {
     this.endPickupAnimation = function() {
         pickupSound.play();
         this.isPickingUp = false;
-        this.image.src = "Base.png";
+        this.image.src = "assets/graphics/player/Base.png";
         this.appleBeingPicked.num = 0; // remove apple type
         apples.delete(this.appleBeingPicked);
         this.appleBeingPicked = null;
@@ -423,16 +428,16 @@ function player(width, height, image, x, y) {
 	
         switch (apples.size){
             case 4:
-                this.basket.src = "Basket0.png";
+                this.basket.src = "assets/graphics/player/Basket0.png";
                 break;
             case 3:
-                this.basket.src = "Basket1.png";
+                this.basket.src = "assets/graphics/player/Basket1.png";
                 break;
             case 2:
-                this.basket.src = "Basket2.png";
+                this.basket.src = "assets/graphics/player/Basket2.png";
                 break;
             case 1:
-                this.basket.src = "Basket3.png";
+                this.basket.src = "assets/graphics/player/Basket3.png";
                 break;
         }
 
@@ -443,14 +448,14 @@ function player(width, height, image, x, y) {
 		for(var i = 0; i < Math.ceil(Math.random()*4); i++){
 		    tinyLeaves.push(new tinyLeaf(this.x+Math.random()*this.width, this.y+this.height*0.75));
 		}
-                this.image.src = "Idle.png";
+                this.image.src = "assets/graphics/player/Idle.png";
             }
             this.gravitySpeed = 0;
         }
         else {
             //console.log(this.changeY);
             if (this.changeY + this.gravitySpeed > 0){
-                this.image.src = "Falling1.png";
+                this.image.src = "assets/graphics/player/Falling1.png";
                 this.state = "fall";
             }
             this.gravitySpeed += this.gravity;
@@ -593,15 +598,15 @@ function player(width, height, image, x, y) {
 function credits(){
     ctx = myGameArea.context;
     this.image = new Image();
-    this.image.src = "Credits.png";
+    this.image.src = "assets/graphics/ui/Credits.png";
     this.x = 0;
     this.y = 0;
 
-    this.update = function(){
-	ctx.drawImage(this.image, this.x, this.y, 760, 1500);
-	if (this.y > -1150){
-	    this.y -= 1;
-	}
+    this.update = function() {
+        ctx.drawImage(this.image, this.x, this.y, 760, 1500);
+        if (this.y > -1150){
+            this.y -= 1;
+        }
     }
 }
 
@@ -622,10 +627,10 @@ function apple(x,y,num){
     this.drawApple = function(dx,dy,height,width){
         if (this.num >= 9){
             if (this.num === 12){
-                this.image.src = "HouseClosed.png";
+                this.image.src = "assets/graphics/environment/HouseClosed.png";
                 //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
             } else {
-                this.image.src = "Apple" + (this.num-8) + ".png";
+                this.image.src = "assets/graphics/items/Apple" + (this.num-8) + ".png";
             }
             ctx.drawImage(this.image, dx, dy, height, width);		
         }
@@ -646,30 +651,30 @@ function apple(x,y,num){
 
 function cloud(type){
     this.image = new Image();
-    this.image.src = "Cloud" + Math.ceil(Math.random()*3) + ".png";
+    this.image.src = "assets/graphics/environment/Cloud" + Math.ceil(Math.random()*3) + ".png";
     this.width = Math.floor(Math.random()*150)+100;
     this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
     
     if (type === 'r'){
-	this.x = Math.floor(Math.random()*myGameArea.width);
+        this.x = Math.floor(Math.random()*myGameArea.width);
     } else { 
-	this.x = -this.width;
+        this.x = -this.width;
     }
     
     this.y = Math.floor(Math.random()*120);
     
     this.changeX = Math.random()+0.2;
 
-    this.update = function(){
-	this.x += this.changeX;
-	ctx = myGameArea.context;
-	ctx.drawImage(this.image, this.x,this.y, this.width, this.height);
+    this.update = function() {
+        this.x += this.changeX;
+        ctx = myGameArea.context;
+        ctx.drawImage(this.image, this.x,this.y, this.width, this.height);
     }
 }
 
 function leaf(){
     this.image = new Image();
-    this.image.src = "Leaf.png";
+    this.image.src = "assets/graphics/environment/Leaf.png";
     this.x = Math.random()*720;
     this.y = -50;
     this.rotation = Math.random()*360;
@@ -680,22 +685,22 @@ function leaf(){
     this.changeX = Math.random()*3;
     this.changeY = Math.sqrt(16-Math.pow(this.changeX,2));
 
-    this.update = function(){
-	this.x += this.changeX;
-	this.y += this.changeY;
-	this.rotation += this.changeR;
-	ctx = myGameArea.context;
-	ctx.save();
-	ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
-	ctx.rotate(this.rotation * Math.PI / 180);
-	ctx.drawImage(this.image, 0,0, this.width, this.height);
-	ctx.restore();
+    this.update = function() {
+        this.x += this.changeX;
+        this.y += this.changeY;
+        this.rotation += this.changeR;
+        ctx = myGameArea.context;
+        ctx.save();
+        ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
+        ctx.rotate(this.rotation * Math.PI / 180);
+        ctx.drawImage(this.image, 0,0, this.width, this.height);
+        ctx.restore();
     }
 }
 
 function tinyLeaf(x,y){
     this.image = new Image();
-    this.image.src = "Leaf.png";
+    this.image.src = "assets/graphics/environment/Leaf.png";
     this.gravity = 0.03;
     this.age = 0;
     this.maxAge = Math.floor(Math.random()*50)+40;
@@ -709,18 +714,18 @@ function tinyLeaf(x,y){
     this.changeX = Math.random()*2 -1;
     this.changeY = -Math.random();
     
-    this.update = function(){
-	this.age++;
-	this.x += this.changeX;
-	this.y += this.changeY;
-	this.rotation += this.changeR;
-	ctx = myGameArea.context;
-	ctx.save();
-	ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
-	ctx.rotate(this.rotation * Math.PI / 180);
-	ctx.drawImage(this.image, 0,0, this.width, this.height);
-	ctx.restore();
-	this.changeY += this.gravity;
+    this.update = function() {
+        this.age++;
+        this.x += this.changeX;
+        this.y += this.changeY;
+        this.rotation += this.changeR;
+        ctx = myGameArea.context;
+        ctx.save();
+        ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
+        ctx.rotate(this.rotation * Math.PI / 180);
+        ctx.drawImage(this.image, 0,0, this.width, this.height);
+        ctx.restore();
+        this.changeY += this.gravity;
     }
 }
 
@@ -760,7 +765,7 @@ function updateGameArea() {
     if (myGameArea.keys.has(32)) {// space bar pushed
         if (player1.colliding()){
             jumpSound.play();
-            player1.image.src = "Jump.png";
+            player1.image.src = "assets/graphics/player/Jump.png";
             player1.state = "jump";
             player1.changeY = -3.8;
         }
@@ -864,17 +869,16 @@ function updateGameArea() {
     player1.update(); // update player1
 
     for (t = 0; t < tinyLeaves.length; t++){ // don't draw tinyleaves over credits
-	if (tinyLeaves[t].age < tinyLeaves[t].maxAge){
-	    tinyLeaves[t].update();
-	} else {
-	    tinyLeaves.splice(t,1);
-	}
+        if (tinyLeaves[t].age < tinyLeaves[t].maxAge){
+            tinyLeaves[t].update();
+        } else {
+            tinyLeaves.splice(t,1);
+        }
     }
     
     if (level > levels.length){
-	credits.update();
+        credits.update();
     }
-
 
     for (k = leaves.length-1; k >=0; k -=1){
         if (leaves[k].y > 340) {
@@ -883,8 +887,4 @@ function updateGameArea() {
             leaves[k].update();
         }
     }
-    
-
-
 }
-
