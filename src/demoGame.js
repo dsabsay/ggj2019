@@ -81,7 +81,7 @@ function startLevel(index) {
 	    player1.y = myGameArea.height-200;
 	    player1.reset();
   	} else {
-	    player1 = new player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
+	    player1 = new Player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
   	}
 
   } else {
@@ -158,6 +158,7 @@ function bg() {
   this.slots = [];
   this.bgImage = new Image();
   this.bgImage.src = "assets/graphics/environment/Background.png";
+
   for (var i=0; i<3; i++) {
     this.slots.push(new slot(this.x, this.y, this.width, this.height));
     ctx = myGameArea.context;
@@ -165,12 +166,13 @@ function bg() {
     ctx.strokeRect(this.x, this.y, this.width, this.height);
     this.x+=this.width+this.gap;
   }
+
   this.update = function() {
     // draw bg image
     ctx = myGameArea.context;
     ctx.drawImage(this.bgImage, 0, -100, 760, 500);
 
-    for (var j=0; j<this.slots.length; j++){
+    for (var j=0; j<this.slots.length; j++) {
       this.slots[j].update();
     }
   }
@@ -222,7 +224,7 @@ function slot(x,y,width,height) {
   }
 }
 
-function tile(map, x, y, scale){
+function tile(map, x, y, scale) {
   this.map = map;
   this.x = x;
   this.y = y;
@@ -241,69 +243,70 @@ function tile(map, x, y, scale){
   //this.bgImage = new Image();
   //this.bgImage.src = "Cloud1.png";
 
-  for (var i = 0; i<map.length; i++){ // populate platform array
-    for (var j = map[i].length-1; j >=0; j--){
-      if (map[i][j] > 0){
+  for (var i = 0; i<map.length; i++) { // populate platform array
+    for (var j = map[i].length-1; j >=0; j--) {
+      if (map[i][j] > 0) {
         if (map[i][j] >= 9) { // these are apples
-            apples.add(new apple(j,i,map[i][j]));
+          apples.add(new apple(j,i,map[i][j]));
         }
         this.platforms.push(new platform(j,i,map[i][j]));
       }
     }
-  }    
+  }
 
-    this.update = function(){
+  this.update = function() {
 
-        ctx.lineWidth = 0.5;
-        //ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
-        ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
-        //ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
+    ctx.lineWidth = 0.5;
+    //ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
+    ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
+    //ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
 
-        this.drawx = this.x-2*this.scale;
-        this.drawy = this.y;
-        for (var i = 0; i < map.length; i++){
-            for (var j = 0; j < map[i].length; j++){
-                if (map[i][j] > 0 && map[i][j] < 9){
-                    this.image.src = "assets/graphics/tiles/Tile" + map[i][j] + ".png"; // draw platforms
-                    //ctx.globalAlpha = 0.5;
-                    ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
-                } else if (map[i][j] === 12){
-                    for (let apple of apples){
-                        if (apple.num === map[i][j]){
-                            apple.drawApple(this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);
-                        }
-                    }
-                } else if (map[i][j] >= 9){
-                    for (let apple of apples){
-                        if (apple.num === map[i][j]){
-                            apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);
-                        }
-                    }
-		}
-                this.drawx += this.width*this.scale-4*this.scale;
+    this.drawx = this.x-2*this.scale;
+    this.drawy = this.y;
+    for (var i = 0; i < map.length; i++) {
+      for (var j = 0; j < map[i].length; j++) {
+        if (map[i][j] > 0 && map[i][j] < 9) {
+          this.image.src = "assets/graphics/tiles/Tile" + map[i][j] + ".png"; // draw platforms
+          //ctx.globalAlpha = 0.5;
+          ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
+        } else if (map[i][j] === 12) {
+          for (let apple of apples) {
+            if (apple.num === map[i][j]) {
+              apple.drawApple(this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);
             }
-            this.drawx = this.x-2*this.scale;
-            this.drawy += this.height*this.scale-4*this.scale;
+          }
+        } else if (map[i][j] >= 9) {
+          for (let apple of apples) {
+            if (apple.num === map[i][j]) {
+              apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);
+            }
+          }
         }
+        this.drawx += this.width*this.scale-4*this.scale;
+      }
+      this.drawx = this.x-2*this.scale;
+      this.drawy += this.height*this.scale-4*this.scale;
     }
+  }
 }
 
 function platform(x, y, type) { // for things to collide with
-    this.x = x;
-    this.y = y;
-    if (type < 5){
-        this.type = 1; // top
-    } else if (type >= 9){ // apple
-        this.type = type;
-    } else { // side
-        type = 2;
-    }
+  this.x = x;
+  this.y = y;
+  if (type < 5){
+    this.type = 1; // top
+  } else if (type >= 9) { // apple
+    this.type = type;
+  } else { // side
+    type = 2;
+  }
 
-    this.update = function() {
-    }
+  this.update = function() {
+  }
 }
 
-function player(width, height, image, x, y) {
+class Player {
+  constructor(width, height, image, x, y) {
     this.image = new Image();
     this.image.src = image;
     this.basket = new Image();
@@ -316,575 +319,581 @@ function player(width, height, image, x, y) {
     this.x = x;
     this.y = y;
     this.gravity = 0.08;
+
     this.walkCycle = [
-        "assets/graphics/player/Base.png",
-        "assets/graphics/player/Walk1.png",
-        "assets/graphics/player/Walk2.png",
-        "assets/graphics/player/Base.png",
-        "assets/graphics/player/Walk2.png",
-        "assets/graphics/player/Walk1.png"
+      "assets/graphics/player/Base.png",
+      "assets/graphics/player/Walk1.png",
+      "assets/graphics/player/Walk2.png",
+      "assets/graphics/player/Base.png",
+      "assets/graphics/player/Walk2.png",
+      "assets/graphics/player/Walk1.png"
     ];
     this.walkCycleDelay = 7;
+
     this.pickupAnims = [
-        ["assets/graphics/player/Pick0A.png", "assets/graphics/player/Pick0B.png"],
-        ["assets/graphics/player/Pick1A.png", "assets/graphics/player/Pick1B.png"],
-        ["assets/graphics/player/Pick2A.png", "assets/graphics/player/Pick2B.png"]
+      ["assets/graphics/player/Pick0A.png", "assets/graphics/player/Pick0B.png"],
+      ["assets/graphics/player/Pick1A.png", "assets/graphics/player/Pick1B.png"],
+      ["assets/graphics/player/Pick2A.png", "assets/graphics/player/Pick2B.png"]
     ];
 
-    this.reset = function(){
-	this.state = "idle";
-	this.facing = "right";
-	this.gravitySpeed = 0;
-	this.walkCycleFrame = 0;
-	this.pickupAnimFrame = [0, 0];  /* a tuple of indices for pickupAnims */
-	this.pickupAnimDelay = 7;
-	this.isPickingUp = false;
-	this.numApples = 0;
-	this.appleBeingPicked = null;
-    }
-
+    this.loadImages();
     this.reset();
+  }
 
-    this.nextImage = function() {
-        if (this.image.src === "assets/graphics/player/Base.png"){
-            this.image.src = "assets/graphics/player/Idle.png";
-        } else {
-            this.image.src = "assets/graphics/player/Base.png";
-        }
-    }
+  reset() {
+    this.state = "idle";
+    this.facing = "right";
+    this.gravitySpeed = 0;
+    this.walkCycleFrame = 0;
+    this.pickupAnimFrame = [0, 0];  /* a tuple of indices for pickupAnims */
+    this.pickupAnimDelay = 7;
+    this.isPickingUp = false;
+    this.numApples = 0;
+    this.appleBeingPicked = null;
+  }
 
-    this.advanceWalkCycle = function() {
-        if (this.walkCycleDelay != 0) {
-            this.walkCycleDelay -= 1;
-            return;
-        }
-        this.walkCycleFrame = (this.walkCycleFrame + 1) % this.walkCycle.length;
-        this.image.src = this.walkCycle[this.walkCycleFrame];
-        this.walkCycleDelay = 7;
-    }
+  /* Load all images needed for player animations. */
+  async loadImages() {
 
-    this.moveRight = function() {
-        if (!this.collidingRight()){
-            this.changeX = 1.8;
-            this.facing = "right";
-            this.advanceWalkCycle();
-        }
-    }
+  }
 
-    this.moveLeft = function() {
-        if (!this.collidingLeft()){
-            this.changeX = -1.8;
-            this.facing = "left";
-            this.advanceWalkCycle();
-        }
-    }
+  loadImage(img) {
 
-    /* Starts the pickup animation. */
-    this.startPickupAnimation = function() {
-        this.isPickingUp = true;
-        /* Start at -1 so that the animation begins in advancePickupAnimation() */
-        /* numApples is already incremented before this method is called */
-        this.pickupAnimFrame = [this.numApples - 1, -1];
-    }
+  }
 
-    this.endPickupAnimation = function() {
-        pickupSound.play();
-        this.isPickingUp = false;
-        this.image.src = "assets/graphics/player/Base.png";
-        this.appleBeingPicked.num = 0; // remove apple type
-        apples.delete(this.appleBeingPicked);
-        this.appleBeingPicked = null;
-    }
-
-    /* Advances to the next frame of the pickup animation. */
-    this.advancePickupAnimation = function() {
-        if (this.pickupAnimDelay != 0) {
-            this.pickupAnimDelay -= 1;
-            return;
-        }
-        this.pickupAnimDelay = 7;
-
-	var animNum = this.pickupAnimFrame[0];
-	var frameNum = this.pickupAnimFrame[1];
-	frameNum += 1;
-        /* Stop the animation after playing once. */
-        if (frameNum == this.pickupAnims[animNum].length) {
-            return this.endPickupAnimation();
-	}
-	//console.log(animNum, frameNum);
-        this.image.src = this.pickupAnims[animNum][frameNum];
-
-        this.pickupAnimFrame[1] = frameNum;  /* update the frame counter */
-
-    }
-
-    this.update = function() {
-
-        if (this.isPickingUp) {
-            this.advancePickupAnimation();
-        }
-
-	this.touchingApple();
-
-        switch (apples.size){
-            case 4:
-                this.basket.src = "assets/graphics/player/Basket0.png";
-                break;
-            case 3:
-                this.basket.src = "assets/graphics/player/Basket1.png";
-                break;
-            case 2:
-                this.basket.src = "assets/graphics/player/Basket2.png";
-                break;
-            case 1:
-                this.basket.src = "assets/graphics/player/Basket3.png";
-                break;
-        }
-
-
-        if (this.colliding()){
-            if (this.gravitySpeed > 0){
-                landSound.play();
-		for(var i = 0; i < Math.ceil(Math.random()*4); i++){
-		    tinyLeaves.push(new tinyLeaf(this.x+Math.random()*this.width, this.y+this.height*0.75));
-		}
-                this.image.src = "assets/graphics/player/Idle.png";
-            }
-            this.gravitySpeed = 0;
-        }
-        else {
-            //console.log(this.changeY);
-            if (this.changeY + this.gravitySpeed > 0){
-                this.image.src = "assets/graphics/player/Falling1.png";
-                this.state = "fall";
-            }
-            this.gravitySpeed += this.gravity;
-            if (this.changeY < 0){
-                if (this.changeY + this.gravity > 0){ // don't sink in
-                    this.changeY = 0;
-                } else {
-                    this.changeY += this.gravity;
-                }
-            }
-        }
-        this.y += this.changeY + this.gravitySpeed;
-        this.x += this.changeX;
-
-        ctx = myGameArea.context; // draw player
-        ctx.save();
-        if (this.facing === "left"){
-            ctx.scale(-1,1);
-            ctx.drawImage(this.image,
-                -this.x - this.width,
-                this.y,
-                this.width, this.height);
-
-            //if (this.state === "jump"){
-            //ctx.rotate(15);
-            //}
-
-            ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
-
-        } else  {
-            ctx.scale(1,1);
-            ctx.drawImage(this.image,
-                this.x,
-                this.y,
-                this.width, this.height);
-            //if (this.state === "jump"){
-            //ctx.rotate(15);
-            //}
-            ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
-
-        }
-        ctx.restore();
-
-    }
-
-
-    this.touchingApple = function(){
-        for (let slot of background.slots){ // all the slots
-            for (var i = 0; i<slot.cBoxes.length; i++){ // all the platforms
-                if (slot.cBoxes[i][4] >=9){ // platform type
-                    //console.log(slot.cBoxes[i][4]);
-                    if (slot.cBoxes[i][0] < this.x + this.width &&
-                        slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
-                        slot.cBoxes[i][1] < this.y + this.height -10){
-                        if (slot.cBoxes[i][4] === 12){ // touching house
-                            if (apples.size === 1) { // all apples collected
-                                apples.clear();
-				level ++;
-				startLevel(level); //play next level
-				levelComplete += 1; // you win
-                                //window.location.replace("credits.html");
-                            }
-                        } else {
-
-                            //index is slot.cBoxes[i][4]
-                            for (let apple of apples){
-                                /* Don't collide with an apple being picked */
-                                if (apple == this.appleBeingPicked) {
-                                    continue;
-                                }
-                                //console.log(apple.num, slot.cBoxes[i][4]);
-                                if (apple.num === slot.cBoxes[i][4]){
-                                    this.appleBeingPicked = apple;
-                                    /* apple is deleted after animation finishes */
-                                    this.numApples += 1;
-                                    this.startPickupAnimation();
-                                    //console.log(apples.size);
-                                }
-                                //slot.cBoxes.splice(i,1);
-                                //console.log(apple.num);
-                            }
-                        }
-                        return 1;
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
-    this.collidingRight = function(){
-        for (let slot of background.slots) {
-            for (let cBox of slot.cBoxes){ //look at every platform
-                //console.log(cBox[4]);
-                if (cBox[4] < 9){
-                    if (cBox[0] < this.x + this.width &&
-                        cBox[0] > this.x &&
-                        cBox[1] < this.y + this.height -10){
-                        return 1;
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
-    this.collidingLeft = function(){
-        for (let slot of background.slots) {
-            for (let cBox of slot.cBoxes){ //look at every platform
-                if (cBox[4] < 9){
-                    if (cBox[0] + 45 > this.x &&
-                        cBox[0] + 45 < this.x + this.width&&
-                        cBox[1] < this.y + this.height -10){
-                        return 1;
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
-    this.colliding = function(){
-
-        for (let slot of background.slots) {
-            for (let cBox of slot.cBoxes){ //look at every platform
-                //console.log(cBox, this.x, this.width);
-                if (cBox[4] === 1 &&
-                    cBox[1] < this.y + this.height &&
-                    cBox[1] > this.y + this.height - 10 &&
-                    cBox[0] < this.x + this.width &&
-                    cBox[0] + 40 > this.x){ //check if it's touching player1 from below
-                    return 1;
-                }
-            }
-        }
-        return 0;
-    }
-}
-
-function credits(){
-    ctx = myGameArea.context;
-    this.image = new Image();
-    this.image.src = "assets/graphics/ui/Credits.png";
-    this.x = 0;
-    this.y = 0;
-
-    this.update = function() {
-        ctx.drawImage(this.image, this.x, this.y, 760, 1500);
-        if (this.y > -1150){
-            this.y -= 1;
-        }
-    }
-}
-
-function apple(x,y,num){
-    this.x = x;
-    this.y = y;
-    this.width = 20;
-    this.height = 17;
-    this.scale = 1;
-    this.num = num;
-    this.image = new Image();
-    this.image.src;
-
-    this.update = function(){
-
-    }
-
-    this.drawApple = function(dx,dy,height,width){
-        if (this.num >= 9){
-            if (this.num === 12){
-                this.image.src = "assets/graphics/environment/HouseClosed.png";
-                //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);
-            } else {
-                this.image.src = "assets/graphics/items/Apple" + (this.num-8) + ".png";
-            }
-            ctx.drawImage(this.image, dx, dy, height, width);
-        }
-    }
-
-    this.touchingPlayer = function(){
-        if (this.x < player1.x + player1.width &&
-            this.x + this.width > player1.x &&
-            this.y < player1.y + player1.height &&
-            this.y + this.height > player1.y){
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-}
-
-function cloud(type){
-    this.image = new Image();
-    this.image.src = "assets/graphics/environment/Cloud" + Math.ceil(Math.random()*3) + ".png";
-    this.width = Math.floor(Math.random()*150)+100;
-    this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
-
-    if (type === 'r'){
-        this.x = Math.floor(Math.random()*myGameArea.width);
+  nextImage() {
+    if (this.image.src === "assets/graphics/player/Base.png"){
+      this.image.src = "assets/graphics/player/Idle.png";
     } else {
-        this.x = -this.width;
+      this.image.src = "assets/graphics/player/Base.png";
+    }
+  }
+
+  advanceWalkCycle() {
+    if (this.walkCycleDelay != 0) {
+      this.walkCycleDelay -= 1;
+      return;
+    }
+    this.walkCycleFrame = (this.walkCycleFrame + 1) % this.walkCycle.length;
+    this.image.src = this.walkCycle[this.walkCycleFrame];
+    this.walkCycleDelay = 7;
+  }
+
+  moveRight() {
+    if (!this.collidingRight()) {
+      this.changeX = 1.8;
+      this.facing = "right";
+      this.advanceWalkCycle();
+    }
+  }
+
+  moveLeft() {
+    if (!this.collidingLeft()) {
+      this.changeX = -1.8;
+      this.facing = "left";
+      this.advanceWalkCycle();
+    }
+  }
+
+  /* Starts the pickup animation. */
+  startPickupAnimation() {
+    this.isPickingUp = true;
+    /* Start at -1 so that the animation begins in advancePickupAnimation() */
+    /* numApples is already incremented before this method is called */
+    this.pickupAnimFrame = [this.numApples - 1, -1];
+  }
+
+  endPickupAnimation() {
+    pickupSound.play();
+    this.isPickingUp = false;
+    this.image.src = "assets/graphics/player/Base.png";
+    this.appleBeingPicked.num = 0; // remove apple type
+    apples.delete(this.appleBeingPicked);
+    this.appleBeingPicked = null;
+  }
+
+  /* Advances to the next frame of the pickup animation. */
+  advancePickupAnimation() {
+    if (this.pickupAnimDelay != 0) {
+      this.pickupAnimDelay -= 1;
+      return;
+    }
+    this.pickupAnimDelay = 7;
+
+    var animNum = this.pickupAnimFrame[0];
+    var frameNum = this.pickupAnimFrame[1];
+    frameNum += 1;
+    /* Stop the animation after playing once. */
+    if (frameNum == this.pickupAnims[animNum].length) {
+      return this.endPickupAnimation();
+    }
+    //console.log(animNum, frameNum);
+    this.image.src = this.pickupAnims[animNum][frameNum];
+
+    this.pickupAnimFrame[1] = frameNum;  /* update the frame counter */
+
+  }
+
+  update() {
+
+    if (this.isPickingUp) {
+      this.advancePickupAnimation();
     }
 
-    this.y = Math.floor(Math.random()*120);
+    this.touchingApple();
 
-    this.changeX = Math.random()+0.2;
-
-    this.update = function() {
-        this.x += this.changeX;
-        ctx = myGameArea.context;
-        ctx.drawImage(this.image, this.x,this.y, this.width, this.height);
+    switch (apples.size) {
+      case 4:
+        this.basket.src = "assets/graphics/player/Basket0.png";
+        break;
+      case 3:
+        this.basket.src = "assets/graphics/player/Basket1.png";
+        break;
+      case 2:
+        this.basket.src = "assets/graphics/player/Basket2.png";
+        break;
+      case 1:
+        this.basket.src = "assets/graphics/player/Basket3.png";
+        break;
     }
-}
 
-function leaf(){
-    this.image = new Image();
-    this.image.src = "assets/graphics/environment/Leaf.png";
-    this.x = Math.random()*720;
-    this.y = -50;
-    this.rotation = Math.random()*360;
-    this.width = Math.floor(Math.random()*25)+25;
-    this.height = this.width;
-    this.changeR = Math.random()*3 - 1.5;
-
-    this.changeX = Math.random()*3;
-    this.changeY = Math.sqrt(16-Math.pow(this.changeX,2));
-
-    this.update = function() {
-        this.x += this.changeX;
-        this.y += this.changeY;
-        this.rotation += this.changeR;
-        ctx = myGameArea.context;
-        ctx.save();
-        ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
-        ctx.rotate(this.rotation * Math.PI / 180);
-        ctx.drawImage(this.image, 0,0, this.width, this.height);
-        ctx.restore();
+    if (this.colliding()) {
+      if (this.gravitySpeed > 0) {
+        landSound.play();
+        for (var i = 0; i < Math.ceil(Math.random()*4); i++) {
+          tinyLeaves.push(new tinyLeaf(this.x+Math.random()*this.width, this.y+this.height*0.75));
+        }
+        this.image.src = "assets/graphics/player/Idle.png";
+      }
+      this.gravitySpeed = 0;
     }
-}
-
-function tinyLeaf(x,y){
-    this.image = new Image();
-    this.image.src = "assets/graphics/environment/Leaf.png";
-    this.gravity = 0.03;
-    this.age = 0;
-    this.maxAge = Math.floor(Math.random()*50)+40;
-
-    this.x = x;
-    this.y = y;
-    this.rotation = Math.random()*360;
-    this.width = 10;
-    this.height = this.width;
-    this.changeR = Math.random()*3 - 1.5;
-    this.changeX = Math.random()*2 -1;
-    this.changeY = -Math.random();
-
-    this.update = function() {
-        this.age++;
-        this.x += this.changeX;
-        this.y += this.changeY;
-        this.rotation += this.changeR;
-        ctx = myGameArea.context;
-        ctx.save();
-        ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
-        ctx.rotate(this.rotation * Math.PI / 180);
-        ctx.drawImage(this.image, 0,0, this.width, this.height);
-        ctx.restore();
+    else {
+      //console.log(this.changeY);
+      if (this.changeY + this.gravitySpeed > 0) {
+        this.image.src = "assets/graphics/player/Falling1.png";
+        this.state = "fall";
+      }
+      this.gravitySpeed += this.gravity;
+      if (this.changeY < 0) {
+        if (this.changeY + this.gravity > 0){ // don't sink in
+        this.changeY = 0;
+      } else {
         this.changeY += this.gravity;
+      }
     }
+  }
+  this.y += this.changeY + this.gravitySpeed;
+  this.x += this.changeX;
+
+  ctx = myGameArea.context; // draw player
+  ctx.save();
+  if (this.facing === "left") {
+    ctx.scale(-1,1);
+    ctx.drawImage(this.image,
+      -this.x - this.width,
+      this.y,
+      this.width, this.height);
+
+      //if (this.state === "jump"){
+      //ctx.rotate(15);
+      //}
+
+      ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
+    } else {
+      ctx.scale(1,1);
+      ctx.drawImage(this.image,
+        this.x,
+        this.y,
+        this.width, this.height);
+        //if (this.state === "jump"){
+        //ctx.rotate(15);
+        //}
+        ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
+      }
+      ctx.restore();
+    }
+
+
+  touchingApple() {
+    for (let slot of background.slots) { // all the slots
+      for (var i = 0; i<slot.cBoxes.length; i++) { // all the platforms
+        if (slot.cBoxes[i][4] >=9){ // platform type
+          //console.log(slot.cBoxes[i][4]);
+          if (slot.cBoxes[i][0] < this.x + this.width &&
+            slot.cBoxes[i][0]+slot.cBoxes[i][2] > this.x &&
+            slot.cBoxes[i][1] < this.y + this.height -10) {
+              if (slot.cBoxes[i][4] === 12) { // touching house
+                if (apples.size === 1) { // all apples collected
+                  apples.clear();
+                  level ++;
+                  startLevel(level); //play next level
+                  levelComplete += 1; // you win
+                  //window.location.replace("credits.html");
+                }
+              } else {
+
+                //index is slot.cBoxes[i][4]
+                for (let apple of apples) {
+                  /* Don't collide with an apple being picked */
+                  if (apple == this.appleBeingPicked) {
+                    continue;
+                  }
+                  //console.log(apple.num, slot.cBoxes[i][4]);
+                  if (apple.num === slot.cBoxes[i][4]) {
+                    this.appleBeingPicked = apple;
+                    /* apple is deleted after animation finishes */
+                    this.numApples += 1;
+                    this.startPickupAnimation();
+                    //console.log(apples.size);
+                  }
+                  //slot.cBoxes.splice(i,1);
+                  //console.log(apple.num);
+                }
+              }
+              return 1;
+            }
+          }
+        }
+      }
+      return 0;
+    }
+
+    collidingRight() {
+      for (let slot of background.slots) {
+        for (let cBox of slot.cBoxes){ //look at every platform
+          //console.log(cBox[4]);
+          if (cBox[4] < 9) {
+            if (cBox[0] < this.x + this.width &&
+              cBox[0] > this.x &&
+              cBox[1] < this.y + this.height -10) {
+                return 1;
+            }
+          }
+        }
+      }
+      return 0;
+    }
+
+    collidingLeft() {
+      for (let slot of background.slots) {
+        for (let cBox of slot.cBoxes){ //look at every platform
+          if (cBox[4] < 9){
+            if (cBox[0] + 45 > this.x &&
+              cBox[0] + 45 < this.x + this.width &&
+              cBox[1] < this.y + this.height -10) {
+                return 1;
+            }
+          }
+        }
+      }
+      return 0;
+    }
+
+  colliding() {
+    for (let slot of background.slots) {
+      for (let cBox of slot.cBoxes) { //look at every platform
+        //console.log(cBox, this.x, this.width);
+        if (cBox[4] === 1 &&
+          cBox[1] < this.y + this.height &&
+          cBox[1] > this.y + this.height - 10 &&
+          cBox[0] < this.x + this.width &&
+          cBox[0] + 40 > this.x) { //check if it's touching player1 from below
+          return 1;
+        }
+      }
+    }
+    return 0;
+  }
+}
+// End player class
+
+
+function credits() {
+  ctx = myGameArea.context;
+  this.image = new Image();
+  this.image.src = "assets/graphics/ui/Credits.png";
+  this.x = 0;
+  this.y = 0;
+
+  this.update = function() {
+    ctx.drawImage(this.image, this.x, this.y, 760, 1500);
+    if (this.y > -1150) {
+      this.y -= 1;
+    }
+  }
 }
 
-function updateGameArea() {
+function apple(x,y,num) {
+  this.x = x;
+  this.y = y;
+  this.width = 20;
+  this.height = 17;
+  this.scale = 1;
+  this.num = num;
+  this.image = new Image();
+  this.image.src;
 
-    myGameArea.clear();
-    myGameArea.frameNumber += 1;
-    background.update();
-
-
-    if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
-	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
-	leaves.push(new leaf());
+  this.drawApple = function(dx,dy,height,width) {
+    if (this.num >= 9) {
+      if (this.num === 12) {
+        this.image.src = "assets/graphics/environment/HouseClosed.png";
+        //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);
+      } else {
+        this.image.src = "assets/graphics/items/Apple" + (this.num-8) + ".png";
+      }
+      ctx.drawImage(this.image, dx, dy, height, width);
     }
+  }
 
-    if (myGameArea.frameNumber === nextCloudAt) { // wait until ready
-	nextCloudAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
-	clouds.push(new cloud('n'));
+  this.touchingPlayer = function() {
+    if (this.x < player1.x + player1.width &&
+      this.x + this.width > player1.x &&
+      this.y < player1.y + player1.height &&
+      this.y + this.height > player1.y) {
+        return 1;
     }
-
-    for (c = clouds.length-1; c >=0; c -=1){
-        if (clouds[c].x > myGameArea.width) {
-            clouds.splice(c,1);
-        } else {
-            clouds[c].update();
-        }
+    else {
+      return 0;
     }
+  }
+}
 
-    player1.changeX = 0; // player controls
+function cloud(type) {
+  this.image = new Image();
+  this.image.src = "assets/graphics/environment/Cloud" + Math.ceil(Math.random()*3) + ".png";
+  this.width = Math.floor(Math.random()*150)+100;
+  this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
 
-    if (myGameArea.keys.has(37)) { // left arrow pushed
-        player1.moveLeft();
-    }
-    if (myGameArea.keys.has(39)) { // right arrow pushed
-        player1.moveRight();
-    }
-    if (myGameArea.keys.has(32)) {// space bar pushed
-        if (player1.colliding()){
-            jumpSound.play();
-            player1.image.src = "assets/graphics/player/Jump.png";
-            player1.state = "jump";
-            player1.changeY = -3.8;
-        }
-    }
+  if (type === 'r') {
+    this.x = Math.floor(Math.random()*myGameArea.width);
+  } else {
+    this.x = -this.width;
+  }
 
-    for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
-        platforms[i].update();
-    }
+  this.y = Math.floor(Math.random()*120);
+
+  this.changeX = Math.random()+0.2;
+
+  this.update = function() {
+    this.x += this.changeX;
+    ctx = myGameArea.context;
+    ctx.drawImage(this.image, this.x,this.y, this.width, this.height);
+  }
+}
+
+function leaf() {
+  this.image = new Image();
+  this.image.src = "assets/graphics/environment/Leaf.png";
+  this.x = Math.random()*720;
+  this.y = -50;
+  this.rotation = Math.random()*360;
+  this.width = Math.floor(Math.random()*25)+25;
+  this.height = this.width;
+  this.changeR = Math.random()*3 - 1.5;
+
+  this.changeX = Math.random()*3;
+  this.changeY = Math.sqrt(16-Math.pow(this.changeX,2));
+
+  this.update = function() {
+    this.x += this.changeX;
+    this.y += this.changeY;
+    this.rotation += this.changeR;
+    ctx = myGameArea.context;
+    ctx.save();
+    ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
+    ctx.rotate(this.rotation * Math.PI / 180);
+    ctx.drawImage(this.image, 0,0, this.width, this.height);
+    ctx.restore();
+  }
+}
+
+function tinyLeaf(x,y) {
+  this.image = new Image();
+  this.image.src = "assets/graphics/environment/Leaf.png";
+  this.gravity = 0.03;
+  this.age = 0;
+  this.maxAge = Math.floor(Math.random()*50)+40;
+
+  this.x = x;
+  this.y = y;
+  this.rotation = Math.random()*360;
+  this.width = 10;
+  this.height = this.width;
+  this.changeR = Math.random()*3 - 1.5;
+  this.changeX = Math.random()*2 -1;
+  this.changeY = -Math.random();
+
+  this.update = function() {
+    this.age++;
+    this.x += this.changeX;
+    this.y += this.changeY;
+    this.rotation += this.changeR;
+    ctx = myGameArea.context;
+    ctx.save();
+    ctx.translate(this.x+this.width*0.5, this.y+this.width*0.5);
+    ctx.rotate(this.rotation * Math.PI / 180);
+    ctx.drawImage(this.image, 0,0, this.width, this.height);
+    ctx.restore();
+    this.changeY += this.gravity;
+  }
+}
+
+          function updateGameArea() {
+
+            myGameArea.clear();
+            myGameArea.frameNumber += 1;
+            background.update();
+
+
+            if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
+              nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
+              leaves.push(new leaf());
+            }
+
+            if (myGameArea.frameNumber === nextCloudAt) { // wait until ready
+              nextCloudAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
+              clouds.push(new cloud('n'));
+            }
+
+            for (c = clouds.length-1; c >=0; c -=1) {
+              if (clouds[c].x > myGameArea.width) {
+                clouds.splice(c,1);
+              } else {
+                clouds[c].update();
+              }
+            }
+
+            player1.changeX = 0; // player controls
+
+            if (myGameArea.keys.has(37)) { // left arrow pushed
+              player1.moveLeft();
+            }
+            if (myGameArea.keys.has(39)) { // right arrow pushed
+              player1.moveRight();
+            }
+            if (myGameArea.keys.has(32)) {// space bar pushed
+              if (player1.colliding()) {
+                jumpSound.play();
+                player1.image.src = "assets/graphics/player/Jump.png";
+                player1.state = "jump";
+                player1.changeY = -3.8;
+              }
+            }
+
+            for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
+              platforms[i].update();
+            }
 
 
 
-    for (j = 0; j < tiles.length; j++){
-        if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)){ // touching mouse
+            for (j = 0; j < tiles.length; j++) {
+              if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)) { // touching mouse
 
-            if (myGameArea.mouseX > tiles[j].x &&
-                myGameArea.mouseX < tiles[j].x+120*tiles[j].scale
-                && myGameArea.mouseY >tiles[j].y
-                && myGameArea.mouseY < tiles[j].y+100*tiles[j].scale){
+                if (myGameArea.mouseX > tiles[j].x &&
+                  myGameArea.mouseX < tiles[j].x+120*tiles[j].scale
+                  && myGameArea.mouseY >tiles[j].y
+                  && myGameArea.mouseY < tiles[j].y+100*tiles[j].scale) {
 
 
-                if (pickup === -1){ // pick up a new tile
-                    startTileX = tiles[j].x; // save coordinates for snapping back
-                    startTileY = tiles[j].y;
-                    startSlotNum = -1;
-                    for (var i = 0; i < background.slots.length; i++){
-                        if (tiles[j].x === background.slots[i].x && tiles[j].y === background.slots[i].y){ // which slot did i pick up from
-                            startSlotNum = i;
+                    if (pickup === -1) { // pick up a new tile
+                      startTileX = tiles[j].x; // save coordinates for snapping back
+                      startTileY = tiles[j].y;
+                      startSlotNum = -1;
+                      for (var i = 0; i < background.slots.length; i++) {
+                        if (tiles[j].x === background.slots[i].x && tiles[j].y === background.slots[i].y) { // which slot did i pick up from
+                          startSlotNum = i;
                         }
-                    }
-                    //
-                    if (startSlotNum === -1 || background.slots[startSlotNum].player === 0){ // pickup ok
-                        if (startSlotNum != -1){
-                            background.slots[startSlotNum].removeTile();
+                      }
+                      //
+                      if (startSlotNum === -1 || background.slots[startSlotNum].player === 0) { // pickup ok
+                        if (startSlotNum != -1) {
+                          background.slots[startSlotNum].removeTile();
                         }
                         pickup = j;
                         tiles[j].scale = 2; // set scale
                         //tiles[j].color = "red";
+                      }
+                      //}
                     }
-                    //}
+                    if (pickup === j) {
+                      tiles[j].x=myGameArea.mouseX-80; // set pos
+                      tiles[j].y=myGameArea.mouseY-80;
+                    }
+                  }
+                  else {
+                    tiles[j].color = "lightblue";
+                  }
                 }
-                if (pickup === j){
-                    tiles[j].x=myGameArea.mouseX-80; // set pos
-                    tiles[j].y=myGameArea.mouseY-80;
-                }
-            }
-            else {
-                tiles[j].color = "lightblue";
-            }
-        }
-        else { // put something down
-            if (pickup === j) {
-                pickup = -1;
+                else { // put something down
+                  if (pickup === j) {
+                    pickup = -1;
 
-                if (tiles[j].y > 100){
-                    tiles[j].y = 160;
-                    tiles[j].scale = 2; //snap to grid
+                    if (tiles[j].y > 100) {
+                      tiles[j].y = 160;
+                      tiles[j].scale = 2; //snap to grid
 
 
-                    for (let slot of background.slots){
-                        if (tiles[j].x > slot.x - slot.width*0.5 && tiles[j].x < slot.x + slot.width){
-                            if (slot.occupied){ // snap back
-                                tiles[j].x = startTileX; // fix this with actual stuff
-                                tiles[j].y = startTileY;  // save starting tile position instead of starting mouse
-                                tiles[j].scale = 1;
-                                if (startSlotNum >= 0){
-                                    tiles[j].scale = 2;
-                                    background.slots[startSlotNum].acceptTile(tiles[j].platforms);
-                                }
+                      for (let slot of background.slots) {
+                        if (tiles[j].x > slot.x - slot.width*0.5 && tiles[j].x < slot.x + slot.width) {
+                          if (slot.occupied){ // snap back
+                            tiles[j].x = startTileX; // fix this with actual stuff
+                            tiles[j].y = startTileY;  // save starting tile position instead of starting mouse
+                            tiles[j].scale = 1;
+                            if (startSlotNum >= 0){
+                              tiles[j].scale = 2;
+                              background.slots[startSlotNum].acceptTile(tiles[j].platforms);
                             }
-                            else {
-                                tiles[j].x = slot.x; // snap
-                                slot.acceptTile(tiles[j].platforms);
-                            }
+                          }
+                          else {
+                            tiles[j].x = slot.x; // snap
+                            slot.acceptTile(tiles[j].platforms);
+                          }
                         }
+                      }
+                      /*
+                      if (tiles[j].x > 400) { // rewrite this by iterating over slots. Check whether starting or ending inside a slot to remove or add
                     }
-                    /*
-            if (tiles[j].x > 400) { // rewrite this by iterating over slots. Check whether starting or ending inside a slot to remove or add
-            }
-            } else if (tiles[j].x < 200){
-            if (!background.slots[0].occupied){
-                tiles[j].x = 50;
-                background.slots[0].acceptTile(tiles[j].platforms);
-            }
-            } else {
-            if (!background.slots[1].occupied){
-                tiles[j].x = 270;
-                background.slots[1].acceptTile(tiles[j].platforms);
-            }
-            }
-            */
-                } else {
-                    tiles[j].scale = 1;
+                  } else if (tiles[j].x < 200){
+                  if (!background.slots[0].occupied){
+                  tiles[j].x = 50;
+                  background.slots[0].acceptTile(tiles[j].platforms);
                 }
-                tiles[j].color = "lightblue";
+              } else {
+              if (!background.slots[1].occupied){
+              tiles[j].x = 270;
+              background.slots[1].acceptTile(tiles[j].platforms);
             }
-        }
-        tiles[j].update();
-    }
-    //mText.text="yv: " + player1.changeY; //update score
-    //mText.update();
-    player1.update(); // update player1
-
-    for (t = 0; t < tinyLeaves.length; t++){ // don't draw tinyleaves over credits
-        if (tinyLeaves[t].age < tinyLeaves[t].maxAge){
-            tinyLeaves[t].update();
+          }
+          */
         } else {
-            tinyLeaves.splice(t,1);
+          tiles[j].scale = 1;
         }
+        tiles[j].color = "lightblue";
+      }
     }
+    tiles[j].update();
+  }
+  //mText.text="yv: " + player1.changeY; //update score
+  //mText.update();
+  player1.update(); // update player1
 
-    if (level > levels.length){
-        credits.update();
-    }
+  for (t = 0; t < tinyLeaves.length; t++) { // don't draw tinyleaves over credits
+  if (tinyLeaves[t].age < tinyLeaves[t].maxAge) {
+    tinyLeaves[t].update();
+  } else {
+    tinyLeaves.splice(t,1);
+  }
+}
 
-    for (k = leaves.length-1; k >=0; k -=1){
-        if (leaves[k].y > 340) {
-            leaves.splice(k,1);
-        } else {
-            leaves[k].update();
-        }
-    }
+if (level > levels.length) {
+  credits.update();
+}
+
+for (k = leaves.length-1; k >=0; k -=1) {
+  if (leaves[k].y > 340) {
+    leaves.splice(k,1);
+  } else {
+    leaves[k].update();
+  }
+}
 }
