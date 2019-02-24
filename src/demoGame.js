@@ -84,7 +84,7 @@ function startLevel(index) {
 	    player1.y = myGameArea.height-200;
 	    player1.reset();
   	} else {
-	    player1 = new player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
+	    player1 = new Player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
   	}
 
         //reset button
@@ -189,6 +189,7 @@ function bg() {
   this.slots = [];
   this.bgImage = new Image();
   this.bgImage.src = "assets/graphics/environment/Background.png";
+
   for (var i=0; i<3; i++) {
     this.slots.push(new slot(this.x, this.y, this.width, this.height));
     ctx = myGameArea.context;
@@ -196,6 +197,7 @@ function bg() {
     ctx.strokeRect(this.x, this.y, this.width, this.height);
     this.x+=this.width+this.gap;
   }
+
   this.update = function() {
     // draw bg image
     ctx = myGameArea.context;
@@ -334,7 +336,8 @@ function platform(x, y, type) { // for things to collide with
     }
 }
 
-function player(width, height, image, x, y) {
+class Player {
+  constructor(width, height, image, x, y) {
     this.image = new Image();
     this.image.src = image;
     this.basket = new Image();
@@ -347,6 +350,7 @@ function player(width, height, image, x, y) {
     this.x = x;
     this.y = y;
     this.gravity = 0.08;
+
     this.walkCycle = [
         "assets/graphics/player/Base.png",
         "assets/graphics/player/Walk1.png",
@@ -356,13 +360,18 @@ function player(width, height, image, x, y) {
         "assets/graphics/player/Walk1.png"
     ];
     this.walkCycleDelay = 7;
+
     this.pickupAnims = [
         ["assets/graphics/player/Pick0A.png", "assets/graphics/player/Pick0B.png"],
         ["assets/graphics/player/Pick1A.png", "assets/graphics/player/Pick1B.png"],
         ["assets/graphics/player/Pick2A.png", "assets/graphics/player/Pick2B.png"]
     ];
 
-    this.reset = function(){
+    this.loadImages();
+    this.reset();
+  }
+
+  reset() {
 	this.state = "idle";
 	this.facing = "right";
 	this.gravitySpeed = 0;
@@ -374,9 +383,16 @@ function player(width, height, image, x, y) {
 	this.appleBeingPicked = null;
     }
 
-    this.reset();
+  /* Load all images needed for player animations. */
+  async loadImages() {
 
-    this.nextImage = function() {
+  }
+
+  loadImage(img) {
+
+  }
+
+  nextImage() {
         if (this.image.src === "assets/graphics/player/Base.png"){
             this.image.src = "assets/graphics/player/Idle.png";
         } else {
@@ -384,7 +400,7 @@ function player(width, height, image, x, y) {
         }
     }
 
-    this.advanceWalkCycle = function() {
+  advanceWalkCycle() {
         if (this.walkCycleDelay != 0) {
             this.walkCycleDelay -= 1;
             return;
@@ -394,7 +410,7 @@ function player(width, height, image, x, y) {
         this.walkCycleDelay = 7;
     }
 
-    this.moveRight = function() {
+  moveRight() {
         if (!this.collidingRight()){
             this.changeX = 1.8;
             this.facing = "right";
@@ -402,7 +418,7 @@ function player(width, height, image, x, y) {
         }
     }
 
-    this.moveLeft = function() {
+  moveLeft() {
         if (!this.collidingLeft()){
             this.changeX = -1.8;
             this.facing = "left";
@@ -411,14 +427,14 @@ function player(width, height, image, x, y) {
     }
 
     /* Starts the pickup animation. */
-    this.startPickupAnimation = function() {
+  startPickupAnimation() {
         this.isPickingUp = true;
         /* Start at -1 so that the animation begins in advancePickupAnimation() */
         /* numApples is already incremented before this method is called */
         this.pickupAnimFrame = [this.numApples - 1, -1];
     }
 
-    this.endPickupAnimation = function() {
+  endPickupAnimation() {
         pickupSound.play();
         this.isPickingUp = false;
         this.image.src = "assets/graphics/player/Base.png";
@@ -428,7 +444,7 @@ function player(width, height, image, x, y) {
     }
 
     /* Advances to the next frame of the pickup animation. */
-    this.advancePickupAnimation = function() {
+  advancePickupAnimation() {
         if (this.pickupAnimDelay != 0) {
             this.pickupAnimDelay -= 1;
             return;
@@ -449,7 +465,7 @@ function player(width, height, image, x, y) {
 
     }
 
-    this.update = function() {
+  update() {
 
         if (this.isPickingUp) {
             this.advancePickupAnimation();
@@ -471,7 +487,6 @@ function player(width, height, image, x, y) {
                 this.basket.src = "assets/graphics/player/Basket3.png";
                 break;
         }
-
 
         if (this.colliding()){
             if (this.gravitySpeed > 0){
@@ -515,7 +530,6 @@ function player(width, height, image, x, y) {
             //}
 
             ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
-
         } else  {
             ctx.scale(1,1);
             ctx.drawImage(this.image,
@@ -526,14 +540,12 @@ function player(width, height, image, x, y) {
             //ctx.rotate(15);
             //}
             ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
-
         }
         ctx.restore();
-
     }
 
 
-    this.touchingApple = function(){
+  touchingApple() {
         for (let slot of background.slots){ // all the slots
             for (var i = 0; i<slot.cBoxes.length; i++){ // all the platforms
                 if (slot.cBoxes[i][4] >=9){ // platform type
@@ -577,7 +589,7 @@ function player(width, height, image, x, y) {
         return 0;
     }
 
-    this.collidingRight = function(){
+    collidingRight() {
         for (let slot of background.slots) {
             for (let cBox of slot.cBoxes){ //look at every platform
                 //console.log(cBox[4]);
@@ -593,7 +605,7 @@ function player(width, height, image, x, y) {
         return 0;
     }
 
-    this.collidingLeft = function(){
+    collidingLeft() {
         for (let slot of background.slots) {
             for (let cBox of slot.cBoxes){ //look at every platform
                 if (cBox[4] < 9){
@@ -608,8 +620,7 @@ function player(width, height, image, x, y) {
         return 0;
     }
 
-    this.colliding = function(){
-
+  colliding() {
         for (let slot of background.slots) {
             for (let cBox of slot.cBoxes){ //look at every platform
                 //console.log(cBox, this.x, this.width);
@@ -625,6 +636,8 @@ function player(width, height, image, x, y) {
         return 0;
     }
 }
+// End player class
+
 
 function credits(){
     ctx = myGameArea.context;
@@ -650,10 +663,6 @@ function apple(x,y,num){
     this.num = num;
     this.image = new Image();
     this.image.src;
-
-    this.update = function(){
-
-    }
 
     this.drawApple = function(dx,dy,height,width){
         if (this.num >= 9){
@@ -805,6 +814,7 @@ function updateGameArea() {
     for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
         platforms[i].update();
     }
+
 
 
     for (j = 0; j < tiles.length; j++){
