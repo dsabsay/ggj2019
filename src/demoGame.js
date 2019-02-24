@@ -33,6 +33,7 @@ var jumpSound;
 var landSound;
 var walkSound;
 var pickupSound;
+var reset;
 
 
 /* Return the full path to a resource. */
@@ -84,6 +85,9 @@ function startLevel(index) {
 	    player1 = new player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
   	}
 
+        //reset button
+        reset = new resetButton();
+
   } else {
     credits = new credits();
   }
@@ -93,7 +97,7 @@ function startLevel(index) {
 var myGameArea = {
   canvas: document.getElementById("gameArea"), // "gameArea" is what the canvas is called in the html document index.html
   start: function() {
-
+        
   	this.width = this.canvas.width;
   	this.height = this.canvas.height;
 
@@ -105,12 +109,15 @@ var myGameArea = {
   	this.context = this.canvas.getContext("2d");
   	this.context.scale(2,2);
 
+        this.boundingRect = this.canvas.getBoundingClientRect(); 
+        this.xOffset = this.boundingRect.x;
+        this.yOffset = this.boundingRect.y;
 
     this.frameNumber = 0;
     this.keys = new Set();
     this.interval = setInterval(updateGameArea, 20); //update every 20ms
     //listen for when the user pushes key
-    window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+        window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX-myGameArea.xOffset; myGameArea.mouseY = e.clientY-myGameArea.yOffset;})
     window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
     window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
     window.addEventListener('keydown', function (e) {myGameArea.keys.add(e.keyCode);})
@@ -146,6 +153,28 @@ function textBox(size, font, x, y) { // text like the score
     ctx.font = this.size + " " + this.font;
     ctx.filStyle = "black";
     ctx.fillText(this.text, this.x, this.y);
+  }
+}
+
+function resetButton() {
+  this.x = myGameArea.width - 60;
+  this.y = myGameArea.height - 60;
+  this.width = 50;
+  this.height = 50;
+  this.image = new Image();
+  this.image.src = "assets/graphics/ui/RestartButton.png";
+  
+  this.update = function() {
+    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown) {
+      if (myGameArea.mouseX > this.x &&
+          myGameArea.mouseX < this.x + this.width &&
+          myGameArea.mouseY > this.y &&
+          myGameArea.mouseY < this.y + this.height){
+          startLevel(level);
+      }
+    }
+
   }
 }
 
@@ -776,7 +805,6 @@ function updateGameArea() {
     }
 
 
-
     for (j = 0; j < tiles.length; j++){
         if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)){ // touching mouse
 
@@ -875,6 +903,8 @@ function updateGameArea() {
             tinyLeaves.splice(t,1);
         }
     }
+
+    reset.update();
 
     if (level > levels.length){
         credits.update();
