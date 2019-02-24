@@ -13,6 +13,8 @@ var apples = new Set();
 var tinyLeaves = [];
 var aleaf;
 var mText;
+var pickupOffsetX;
+var pickupOffsetY;
 var nextLeafAt = 50;
 var nextCloudAt = 20;
 var leaves = [];
@@ -55,7 +57,7 @@ function startGame() { // the html document index.html calls startGame()
   jumpSound = new sound(getResourcePath("assets/sound/jump_start.mp3"));
   landSound = new sound(getResourcePath("assets/sound/jump_land.mp3"));
   walkSound = new sound(getResourcePath("assets/sound/Walking.mp3"));
-  pickupSound = new sound(getResourcePath("assets/sound/pickup_item_2.mp3"));
+Sound = new sound(getResourcePath("assets/sound/pickup_item_2.mp3"));
 
   startLevel(1);
 }
@@ -119,7 +121,7 @@ var myGameArea = {
     //listen for when the user pushes key
         window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX-myGameArea.xOffset; myGameArea.mouseY = e.clientY-myGameArea.yOffset;})
     window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
-    window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+    window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX-myGameArea.xOffset; myGameArea.mouseY = e.clientY-myGameArea.yOffset;})
     window.addEventListener('keydown', function (e) {myGameArea.keys.add(e.keyCode);})
     window.addEventListener('keyup', function (e) {myGameArea.keys.delete(e.keyCode);})
   },
@@ -825,22 +827,26 @@ function updateGameArea() {
                     }
                     //
                     if (startSlotNum === -1 || background.slots[startSlotNum].player === 0){ // pickup ok
-                        if (startSlotNum != -1){
-                            background.slots[startSlotNum].removeTile();
-                        }
-                        pickup = j;
-                        tiles[j].scale = 2; // set scale
-                        //tiles[j].color = "red";
+                      if (startSlotNum != -1){
+                          background.slots[startSlotNum].removeTile();
+                      }
+                      pickup = j;
+                        
+                      if (tiles[j].scale === 2) {
+                        pickupOffsetX = (myGameArea.mouseX - tiles[j].x);
+                        pickupOffsetY = (myGameArea.mouseY - tiles[j].y);
+                      } else { 
+                        pickupOffsetX = 2*(myGameArea.mouseX - tiles[j].x);
+                        pickupOffsetY = 2*(myGameArea.mouseY - tiles[j].y);
+                      }
+                      tiles[j].scale = 2; // set scale  
+                      
                     }
-                    //}
                 }
-                if (pickup === j){
-                    tiles[j].x=myGameArea.mouseX-80; // set pos
-                    tiles[j].y=myGameArea.mouseY-80;
+                if (pickup === j){ // tiles should place relative to inital mousepos
+                  tiles[j].x=myGameArea.mouseX - pickupOffsetX*tiles[j].scale*0.5; // set pos
+                  tiles[j].y=myGameArea.mouseY - pickupOffsetY*tiles[j].scale*0.5;
                 }
-            }
-            else {
-                tiles[j].color = "lightblue";
             }
         }
         else { // put something down
@@ -869,25 +875,14 @@ function updateGameArea() {
                             }
                         }
                     }
-                    /*
-            if (tiles[j].x > 400) { // rewrite this by iterating over slots. Check whether starting or ending inside a slot to remove or add
-            }
-            } else if (tiles[j].x < 200){
-            if (!background.slots[0].occupied){
-                tiles[j].x = 50;
-                background.slots[0].acceptTile(tiles[j].platforms);
-            }
-            } else {
-            if (!background.slots[1].occupied){
-                tiles[j].x = 270;
-                background.slots[1].acceptTile(tiles[j].platforms);
-            }
-            }
-            */
-                } else {
-                    tiles[j].scale = 1;
+                } else { // end up back at top
+                    tiles[j].scale = 1; 
+                    var currentX = tiles[j].x;
+                    var currentY = tiles[j].y;
+                    tiles[j].x = currentX + pickupOffsetX*0.5;
+                    tiles[j].y = currentY + pickupOffsetY*0.5;
+
                 }
-                tiles[j].color = "lightblue";
             }
         }
         tiles[j].update();
