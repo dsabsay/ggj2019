@@ -37,222 +37,222 @@ var pickupSound;
 
 /* Return the full path to a resource. */
 function getResourcePath(name) {
-    console.log(window.location.hostname);
-    if (window.location.hostname.includes("dsabsay.github.io")) {
-        // return "https://raw.githubusercontent.com/dsabsay/ggj2019/master/" + name;
-        return name + "?raw=true";
-    }
-    return name;
+  console.log(window.location.hostname);
+  if (window.location.hostname.includes("dsabsay.github.io")) {
+    // return "https://raw.githubusercontent.com/dsabsay/ggj2019/master/" + name;
+    return name + "?raw=true";
+  }
+  return name;
 }
 
 function startGame() { // the html document index.html calls startGame()
-    myGameArea.start();
-    //mText = new textBox("14px", "Helvetica", 100,120);
-    bgMusic = new sound(getResourcePath("assets/sound/main.mp3"));
-    bgMusic.loop();
-    bgMusic.play();
-    jumpSound = new sound(getResourcePath("assets/sound/jump_start.mp3"));
-    landSound = new sound(getResourcePath("assets/sound/jump_land.mp3"));
-    walkSound = new sound(getResourcePath("assets/sound/Walking.mp3"));
-    pickupSound = new sound(getResourcePath("assets/sound/pickup_item_2.mp3"));
+  myGameArea.start();
+  //mText = new textBox("14px", "Helvetica", 100,120);
+  bgMusic = new sound(getResourcePath("assets/sound/main.mp3"));
+  bgMusic.loop();
+  bgMusic.play();
+  jumpSound = new sound(getResourcePath("assets/sound/jump_start.mp3"));
+  landSound = new sound(getResourcePath("assets/sound/jump_land.mp3"));
+  walkSound = new sound(getResourcePath("assets/sound/Walking.mp3"));
+  pickupSound = new sound(getResourcePath("assets/sound/pickup_item_2.mp3"));
 
-    startLevel(1);
+  startLevel(1);
 }
 
-function startLevel(index){
-    //console.log("starting " + index);
-    if (index <= levels.length){
-	background = new bg();
-	tiles = [];
-	tiles.push(new tile(levels[index-1][0],270,160,2));    // the first tile must start in the middle, big
-	background.slots[1].acceptTile(tiles[0].platforms);
-	var x = 20;
-	for (var i = 1; i<levels[index-1].length; i++){
-	    tiles.push(new tile(levels[index-1][i],x,20,1));
-	    x += 120;    
-	}
-	
-	for (j = 1; j < 8; j++){
+function startLevel(index) {
+  if (index <= levels.length) {
+  	background = new bg();
+  	tiles = [];
+  	tiles.push(new tile(levels[index-1][0],270,160,2));    // the first tile must start in the middle, big
+  	background.slots[1].acceptTile(tiles[0].platforms);
+
+  	var x = 20;
+  	for (var i = 1; i<levels[index-1].length; i++) {
+      tiles.push(new tile(levels[index-1][i],x,20,1));
+      x += 120;
+  	}
+
+  	for (j = 1; j < 8; j++) {
 	    clouds.push(new cloud('r'));
-	}
-	
-	if (player1){
+  	}
+
+  	if (player1) {
 	    player1.x = 290;
 	    player1.y = myGameArea.height-200;
 	    player1.reset();
-	} else { 
+  	} else {
 	    player1 = new player(40, 49, "assets/graphics/player/Idle.png", 290, myGameArea.height-200);
-	}
-	
-    } else {
-        credits = new credits();
-    }
+  	}
+
+  } else {
+    credits = new credits();
+  }
 }
 
 
 var myGameArea = {
-    canvas : document.getElementById("gameArea"), // "gameArea" is what the canvas is called in the html document index.html
-    start : function() {
+  canvas: document.getElementById("gameArea"), // "gameArea" is what the canvas is called in the html document index.html
+  start: function() {
 
-	this.width = this.canvas.width;
-	this.height = this.canvas.height;
-        
-	this.canvas.style.width = this.canvas.width + "px"; // set pretty pixels through sorcery
-	this.canvas.style.height = this.canvas.height + "px";
-	this.canvas.width *= window.devicePixelRatio || 1;
-	this.canvas.height *= window.devicePixelRatio || 1;
-		
-	this.context = this.canvas.getContext("2d");	
-	this.context.scale(2,2);
+  	this.width = this.canvas.width;
+  	this.height = this.canvas.height;
+
+  	this.canvas.style.width = this.canvas.width + "px"; // set pretty pixels through sorcery
+  	this.canvas.style.height = this.canvas.height + "px";
+  	this.canvas.width *= window.devicePixelRatio || 1;
+  	this.canvas.height *= window.devicePixelRatio || 1;
+
+  	this.context = this.canvas.getContext("2d");
+  	this.context.scale(2,2);
 
 
-        this.frameNumber = 0;
-        this.keys = new Set();
-        this.interval = setInterval(updateGameArea, 20); //update every 20ms
-        //listen for when the user pushes key
-        window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
-        window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
-        window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
-        window.addEventListener('keydown', function (e) {myGameArea.keys.add(e.keyCode);})
-        window.addEventListener('keyup', function (e) {myGameArea.keys.delete(e.keyCode);})}, 
-    clear : function(){
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    this.frameNumber = 0;
+    this.keys = new Set();
+    this.interval = setInterval(updateGameArea, 20); //update every 20ms
+    //listen for when the user pushes key
+    window.addEventListener('mousedown', function(e) {myGameArea.mousedown = true; myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+    window.addEventListener('mouseup', function(e) {myGameArea.mousedown = false; myGameArea.mouseX = false; myGameArea.mouseY = false;})
+    window.addEventListener('mousemove', function(e) {myGameArea.mouseX = e.clientX; myGameArea.mouseY = e.clientY;})
+    window.addEventListener('keydown', function (e) {myGameArea.keys.add(e.keyCode);})
+    window.addEventListener('keyup', function (e) {myGameArea.keys.delete(e.keyCode);})
+  },
+  clear: function(){
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
 }
 
 function sound(src) {
-    this.sound = new Howl({
-        src: [src]
-    });
-    this.play = function(){
-        this.sound.play();
-    }
-    this.stop = function(){
-        this.sound.pause();
-    }
-    this.loop = function(){
-        this.sound.loop = true;
-    }
+  this.sound = new Howl({
+      src: [src]
+  });
+  this.play = function() {
+      this.sound.play();
+  }
+  this.stop = function() {
+      this.sound.pause();
+  }
+  this.loop = function() {
+      this.sound.loop = true;
+  }
 }
 
 function textBox(size, font, x, y) { // text like the score
-    this.size = size;
-    this.font = font;
-    this.x = x;
-    this.y = y;
-    this.update = function(){
-        ctx = myGameArea.context; //draw text on the screen
-        ctx.font = this.size + " " + this.font;
-        ctx.filStyle = "black";
-        ctx.fillText(this.text, this.x, this.y);
-    }
+  this.size = size;
+  this.font = font;
+  this.x = x;
+  this.y = y;
+  this.update = function() {
+    ctx = myGameArea.context; //draw text on the screen
+    ctx.font = this.size + " " + this.font;
+    ctx.filStyle = "black";
+    ctx.fillText(this.text, this.x, this.y);
+  }
 }
 
-function bg(){
-    this.x = 50;
-    this.y = 160;
-    this.width = 200;
-    this.height = 160;
-    this.gap = 20;
-    this.slots = [];
-    this.bgImage = new Image();
-    this.bgImage.src = "assets/graphics/environment/Background.png";
-    for (var i=0; i<3; i++){
-        this.slots.push(new slot(this.x, this.y, this.width, this.height));
-        ctx = myGameArea.context;
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        this.x+=this.width+this.gap;
-    }    
-    this.update = function(){
-        // draw bg image
-        ctx = myGameArea.context; 
-        ctx.drawImage(this.bgImage, 0, -100, 760, 500);
+function bg() {
+  this.x = 50;
+  this.y = 160;
+  this.width = 200;
+  this.height = 160;
+  this.gap = 20;
+  this.slots = [];
+  this.bgImage = new Image();
+  this.bgImage.src = "assets/graphics/environment/Background.png";
+  for (var i=0; i<3; i++) {
+    this.slots.push(new slot(this.x, this.y, this.width, this.height));
+    ctx = myGameArea.context;
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(this.x, this.y, this.width, this.height);
+    this.x+=this.width+this.gap;
+  }
+  this.update = function() {
+    // draw bg image
+    ctx = myGameArea.context;
+    ctx.drawImage(this.bgImage, 0, -100, 760, 500);
 
-        for (var j=0; j<this.slots.length; j++){
-            this.slots[j].update();
-        }
+    for (var j=0; j<this.slots.length; j++){
+      this.slots[j].update();
     }
+  }
 }
 
-function slot(x,y,width,height){
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.occupied = 0;
-    this.player = 0;
+function slot(x,y,width,height) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.occupied = 0;
+  this.player = 0;
+  this.cBoxes = [];
+
+  this.acceptTile = function(pArray) {
+    this.occupied = 1;
+    for (var i=0; i<pArray.length; i++) {
+      this.cBoxes.push([this.x+(pArray[i].x*42),
+          this.y+((pArray[i].y)*27), 42, 27, pArray[i].type
+      ]);
+    }
+  }
+  this.removeTile = function() {
     this.cBoxes = [];
+    this.occupied = 0;
+  }
 
-    this.acceptTile = function(pArray){
-        this.occupied = 1;
-        for(var i=0; i<pArray.length; i++){
-            this.cBoxes.push([this.x+(pArray[i].x*42), 
-                this.y+((pArray[i].y)*27), 42, 27, pArray[i].type
-            ]);
+  this.update = function() {
+    ctx = myGameArea.context;
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(this.x, this.y, this.width, this.height);
+    //ctx.fillStyle = "blue";
+    //	for (var i=0; i < this.cBoxes.length; i++){
+    //   ctx.fillRect(this.cBoxes[i][0], this.cBoxes[i][1], this.cBoxes[i][2], this.cBoxes[i][3]);
+    //}
+    this.checkPlayer();
+  }
 
-        }
+  this.checkPlayer = function() {
+    if (this.x < player1.x + player1.width &&
+      this.x + this.width > player1.x &&
+      this.y < player1.y + player1.height &&
+      this.y + this.height > player1.y){
+      this.player = 1;
     }
-    this.removeTile = function(){
-        this.cBoxes = [];
-        this.occupied = 0;
+    else {
+      this.player = 0;
     }
-
-    this.update = function(){
-        ctx = myGameArea.context;
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        //ctx.fillStyle = "blue";
-        //	for (var i=0; i < this.cBoxes.length; i++){
-        //   ctx.fillRect(this.cBoxes[i][0], this.cBoxes[i][1], this.cBoxes[i][2], this.cBoxes[i][3]);
-        //}
-        this.checkPlayer();
-    }
-
-    this.checkPlayer = function(){
-        if (this.x < player1.x + player1.width &&
-            this.x + this.width > player1.x &&
-            this.y < player1.y + player1.height &&
-            this.y + this.height > player1.y){
-            this.player = 1;
-        }
-        else {
-            this.player = 0;
-        }
-    }
+  }
 }
 
 function tile(map, x, y, scale){
-    this.map = map;
-    this.x = x;
-    this.y = y;
-    this.zIndex = 1;
-    this.width = 24;
-    this.height = 17;
-    this.platforms = [];
-    this.scale = scale;
-    this.color = "lightblue";
+  this.map = map;
+  this.x = x;
+  this.y = y;
+  this.zIndex = 1;
+  this.width = 24;
+  this.height = 17;
+  this.platforms = [];
+  this.scale = scale;
+  this.color = "lightblue";
 
-    this.drawx = this.x;
-    this.drawy = this.y;
-    this.image = new Image();
-    this.Twidth = 100;
-    this.Theight = 80;
-    //this.bgImage = new Image();
-    //this.bgImage.src = "Cloud1.png";
+  this.drawx = this.x;
+  this.drawy = this.y;
+  this.image = new Image();
+  this.Twidth = 100;
+  this.Theight = 80;
+  //this.bgImage = new Image();
+  //this.bgImage.src = "Cloud1.png";
 
-    for (var i = 0; i<map.length; i++){ // populate platform array
-        for (var j = map[i].length-1; j >=0; j--){  
-            if (map[i][j] > 0){
-                if (map[i][j] >= 9) { // these are apples
-                    apples.add(new apple(j,i,map[i][j]));
-                }
-                this.platforms.push(new platform(j,i,map[i][j]));
-            }
+  for (var i = 0; i<map.length; i++){ // populate platform array
+    for (var j = map[i].length-1; j >=0; j--){
+      if (map[i][j] > 0){
+        if (map[i][j] >= 9) { // these are apples
+            apples.add(new apple(j,i,map[i][j]));
         }
-    }    
+        this.platforms.push(new platform(j,i,map[i][j]));
+      }
+    }
+  }    
 
-    this.update = function(){   
+    this.update = function(){
 
         ctx.lineWidth = 0.5;
         //ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
@@ -270,13 +270,13 @@ function tile(map, x, y, scale){
                 } else if (map[i][j] === 12){
                     for (let apple of apples){
                         if (apple.num === map[i][j]){
-                            apple.drawApple(this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);	
-                        }			
-                    }	
+                            apple.drawApple(this.drawx-10*this.scale, this.drawy-15*this.scale, (this.width*2)*this.scale, (this.height*2)*this.scale);
+                        }
+                    }
                 } else if (map[i][j] >= 9){
                     for (let apple of apples){
                         if (apple.num === map[i][j]){
-                            apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);		
+                            apple.drawApple(this.drawx+5, this.drawy, (this.width-10)*this.scale, (this.height-2)*this.scale);
                         }
                     }
 		}
@@ -303,16 +303,16 @@ function platform(x, y, type) { // for things to collide with
     }
 }
 
-function player(width, height, image, x, y) { 
+function player(width, height, image, x, y) {
     this.image = new Image();
-    this.image.src = image;  
+    this.image.src = image;
     this.basket = new Image();
     this.basket.src = "assets/graphics/player/Basket0.png";
     this.zIndex = 1000;
     this.width = width;
     this.height = height;
     this.changeX = 0;
-    this.changeY = 0;    
+    this.changeY = 0;
     this.x = x;
     this.y = y;
     this.gravity = 0.08;
@@ -342,7 +342,7 @@ function player(width, height, image, x, y) {
 	this.numApples = 0;
 	this.appleBeingPicked = null;
     }
-    
+
     this.reset();
 
     this.nextImage = function() {
@@ -415,7 +415,7 @@ function player(width, height, image, x, y) {
         this.image.src = this.pickupAnims[animNum][frameNum];
 
         this.pickupAnimFrame[1] = frameNum;  /* update the frame counter */
-	
+
     }
 
     this.update = function() {
@@ -425,7 +425,7 @@ function player(width, height, image, x, y) {
         }
 
 	this.touchingApple();
-	
+
         switch (apples.size){
             case 4:
                 this.basket.src = "assets/graphics/player/Basket0.png";
@@ -464,18 +464,18 @@ function player(width, height, image, x, y) {
                     this.changeY = 0;
                 } else {
                     this.changeY += this.gravity;
-                }	
-            }        
+                }
+            }
         }
         this.y += this.changeY + this.gravitySpeed;
-        this.x += this.changeX;	       
+        this.x += this.changeX;
 
         ctx = myGameArea.context; // draw player
         ctx.save();
         if (this.facing === "left"){
             ctx.scale(-1,1);
-            ctx.drawImage(this.image, 
-                -this.x - this.width, 
+            ctx.drawImage(this.image,
+                -this.x - this.width,
                 this.y,
                 this.width, this.height);
 
@@ -484,20 +484,20 @@ function player(width, height, image, x, y) {
             //}
 
             ctx.drawImage(this.basket, -this.x+20 - this.width, this.y+20, 25, 17);
-            
+
         } else  {
             ctx.scale(1,1);
-            ctx.drawImage(this.image, 
-                this.x, 
+            ctx.drawImage(this.image,
+                this.x,
                 this.y,
                 this.width, this.height);
             //if (this.state === "jump"){
             //ctx.rotate(15);
-            //}	
+            //}
             ctx.drawImage(this.basket, this.x+20, this.y+20, 25, 17);
-            
+
         }
-        ctx.restore();   
+        ctx.restore();
 
     }
 
@@ -534,7 +534,7 @@ function player(width, height, image, x, y) {
                                     this.startPickupAnimation();
                                     //console.log(apples.size);
                                 }
-                                //slot.cBoxes.splice(i,1);    
+                                //slot.cBoxes.splice(i,1);
                                 //console.log(apple.num);
                             }
                         }
@@ -588,10 +588,10 @@ function player(width, height, image, x, y) {
                     cBox[0] < this.x + this.width &&
                     cBox[0] + 40 > this.x){ //check if it's touching player1 from below
                     return 1;
-                }   
+                }
             }
         }
-        return 0; 
+        return 0;
     }
 }
 
@@ -616,7 +616,7 @@ function apple(x,y,num){
     this.width = 20;
     this.height = 17;
     this.scale = 1;
-    this.num = num; 
+    this.num = num;
     this.image = new Image();
     this.image.src;
 
@@ -628,11 +628,11 @@ function apple(x,y,num){
         if (this.num >= 9){
             if (this.num === 12){
                 this.image.src = "assets/graphics/environment/HouseClosed.png";
-                //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);		
+                //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);
             } else {
                 this.image.src = "assets/graphics/items/Apple" + (this.num-8) + ".png";
             }
-            ctx.drawImage(this.image, dx, dy, height, width);		
+            ctx.drawImage(this.image, dx, dy, height, width);
         }
     }
 
@@ -654,15 +654,15 @@ function cloud(type){
     this.image.src = "assets/graphics/environment/Cloud" + Math.ceil(Math.random()*3) + ".png";
     this.width = Math.floor(Math.random()*150)+100;
     this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
-    
+
     if (type === 'r'){
         this.x = Math.floor(Math.random()*myGameArea.width);
-    } else { 
+    } else {
         this.x = -this.width;
     }
-    
+
     this.y = Math.floor(Math.random()*120);
-    
+
     this.changeX = Math.random()+0.2;
 
     this.update = function() {
@@ -681,7 +681,7 @@ function leaf(){
     this.width = Math.floor(Math.random()*25)+25;
     this.height = this.width;
     this.changeR = Math.random()*3 - 1.5;
-    
+
     this.changeX = Math.random()*3;
     this.changeY = Math.sqrt(16-Math.pow(this.changeX,2));
 
@@ -704,7 +704,7 @@ function tinyLeaf(x,y){
     this.gravity = 0.03;
     this.age = 0;
     this.maxAge = Math.floor(Math.random()*50)+40;
-    
+
     this.x = x;
     this.y = y;
     this.rotation = Math.random()*360;
@@ -713,7 +713,7 @@ function tinyLeaf(x,y){
     this.changeR = Math.random()*3 - 1.5;
     this.changeX = Math.random()*2 -1;
     this.changeY = -Math.random();
-    
+
     this.update = function() {
         this.age++;
         this.x += this.changeX;
@@ -730,12 +730,12 @@ function tinyLeaf(x,y){
 }
 
 function updateGameArea() {
-    
+
     myGameArea.clear();
     myGameArea.frameNumber += 1;
     background.update();
-    
-    
+
+
     if (myGameArea.frameNumber === nextLeafAt) { // wait until ready
 	nextLeafAt = Math.floor(Math.random()*60)+20 + myGameArea.frameNumber; //chose a new time
 	leaves.push(new leaf());
@@ -748,8 +748,8 @@ function updateGameArea() {
 
     for (c = clouds.length-1; c >=0; c -=1){
         if (clouds[c].x > myGameArea.width) {
-            clouds.splice(c,1); 
-        } else { 
+            clouds.splice(c,1);
+        } else {
             clouds[c].update();
         }
     }
@@ -772,7 +772,7 @@ function updateGameArea() {
     }
 
     for (i = platforms.length-1; i >=0;  i -= 1) { //look at every platform
-        platforms[i].update();      
+        platforms[i].update();
     }
 
 
@@ -780,9 +780,9 @@ function updateGameArea() {
     for (j = 0; j < tiles.length; j++){
         if (myGameArea.mouseX && myGameArea.mouseY && myGameArea.mousedown && (pickup === -1 || pickup === j)){ // touching mouse
 
-            if (myGameArea.mouseX > tiles[j].x && 
-                myGameArea.mouseX < tiles[j].x+120*tiles[j].scale 
-                && myGameArea.mouseY >tiles[j].y 
+            if (myGameArea.mouseX > tiles[j].x &&
+                myGameArea.mouseX < tiles[j].x+120*tiles[j].scale
+                && myGameArea.mouseY >tiles[j].y
                 && myGameArea.mouseY < tiles[j].y+100*tiles[j].scale){
 
 
@@ -795,7 +795,7 @@ function updateGameArea() {
                             startSlotNum = i;
                         }
                     }
-                    //	
+                    //
                     if (startSlotNum === -1 || background.slots[startSlotNum].player === 0){ // pickup ok
                         if (startSlotNum != -1){
                             background.slots[startSlotNum].removeTile();
@@ -805,15 +805,15 @@ function updateGameArea() {
                         //tiles[j].color = "red";
                     }
                     //}
-                } 
+                }
                 if (pickup === j){
                     tiles[j].x=myGameArea.mouseX-80; // set pos
                     tiles[j].y=myGameArea.mouseY-80;
                 }
             }
-            else { 
+            else {
                 tiles[j].color = "lightblue";
-            }	
+            }
         }
         else { // put something down
             if (pickup === j) {
@@ -842,11 +842,11 @@ function updateGameArea() {
                         }
                     }
                     /*
-            if (tiles[j].x > 400) { // rewrite this by iterating over slots. Check whether starting or ending inside a slot to remove or add			    
+            if (tiles[j].x > 400) { // rewrite this by iterating over slots. Check whether starting or ending inside a slot to remove or add
             }
             } else if (tiles[j].x < 200){
             if (!background.slots[0].occupied){
-                tiles[j].x = 50; 
+                tiles[j].x = 50;
                 background.slots[0].acceptTile(tiles[j].platforms);
             }
             } else {
@@ -860,7 +860,7 @@ function updateGameArea() {
                     tiles[j].scale = 1;
                 }
                 tiles[j].color = "lightblue";
-            }	
+            }
         }
         tiles[j].update();
     }
@@ -875,15 +875,15 @@ function updateGameArea() {
             tinyLeaves.splice(t,1);
         }
     }
-    
+
     if (level > levels.length){
         credits.update();
     }
 
     for (k = leaves.length-1; k >=0; k -=1){
         if (leaves[k].y > 340) {
-            leaves.splice(k,1); 
-        } else { 
+            leaves.splice(k,1);
+        } else {
             leaves[k].update();
         }
     }
