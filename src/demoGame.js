@@ -15,12 +15,13 @@ function startLevel(index) {
   if (index <= globals.levels.length) {
   	globals.background = new bg();
   	globals.tiles = [];
-  	globals.tiles.push(new tile(globals.levels[index-1][0],270,160,2));    // the first tile must start in the middle, big
+    // the first tile must start in the middle, big
+  	globals.tiles.push(new tile(globals.levels[index-1][0], 270, 160, 2));
   	globals.background.slots[1].acceptTile(globals.tiles[0].platforms);
 
   	var x = 20;
-  	for (var i = 1; i<globals.levels[index-1].length; i++) {
-      globals.tiles.push(new tile(globals.levels[index-1][i],x,20,1));
+  	for (let i = 1; i < globals.levels[index-1].length; i++) {
+      globals.tiles.push(new tile(globals.levels[index-1][i], x, 20, 1));
       x += 120;
   	}
 
@@ -30,15 +31,13 @@ function startLevel(index) {
 
   	if (globals.player1) {
 	    globals.player1.x = 290;
-	    globals.player1.y = globals.myGameArea.height-200;
+	    globals.player1.y = globals.myGameArea.height - 200;
 	    globals.player1.reset();
   	} else {
-	    globals.player1 = new Player(40, 49, "assets/graphics/player/Idle.png", 290, globals.myGameArea.height-200);
-  	}
+      console.error("this shouldn't happen");
+    }
 
-        //reset button
-        globals.resetButton = new resetButton();
-
+    globals.resetButton = new resetButton();
   } else {
     credits = new credits();
   }
@@ -422,12 +421,9 @@ function updateGameArea() {
     if (globals.myGameArea.keys.has(39)) { // right arrow pushed
         globals.player1.moveRight();
     }
-    if (globals.myGameArea.keys.has(32)) {// space bar pushed
-        if (globals.player1.colliding()){
-            globals.jumpSound.play();
-            globals.player1.image.src = "assets/graphics/player/Jump.png";
-            globals.player1.state = "jump";
-            globals.player1.changeY = -3.8;
+    if (globals.myGameArea.keys.has(32)) { // space bar pushed
+        if (globals.player1.colliding()) {
+          globals.player1.jump();
         }
     }
 

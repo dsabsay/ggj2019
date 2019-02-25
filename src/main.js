@@ -58,8 +58,19 @@ globals.myGameArea = {
   }
 }
 
+/* Loads all resources required by the game. */
+async function loadAllResources() {
+  globals.player1 = await new Player(40, 49, 290, globals.myGameArea.height-200);
+  // TODO: make loadImages() return a promise, so that other object's assets
+  //       can be loaded at the same time
+  await globals.player1.loadImages();
+  console.log(globals.player1.imgs);
+}
+
+
 /* Entry point to game. */
-function startGame() { // the html document index.html calls startGame()
+async function startGame() { // the html document index.html calls startGame()
+
   globals.myGameArea.start();
   //mText = new textBox("14px", "Helvetica", 100,120);
   globals.bgMusic = new Sound(getResourcePath("assets/sound/main.mp3"));
@@ -73,4 +84,10 @@ function startGame() { // the html document index.html calls startGame()
   startLevel(1);
 }
 
-startGame();
+async function main() {
+  await loadAllResources();
+
+  startGame();
+}
+
+main();
