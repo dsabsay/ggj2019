@@ -1,0 +1,23 @@
+{
+  "name": "ggj2019",
+  "version": "0.1.0",
+  "devDependencies": {},
+  "scripts": {
+    "start": "http-server ./ -c-1"
+  },
+  "description": "Hackathon game.",
+  "main": "demoGame.js",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsabsay/ggj2019.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/dsabsay/ggj2019/issues"
+  },
+  "homepage": "https://github.com/dsabsay/ggj2019#readme"
+}
