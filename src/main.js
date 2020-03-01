@@ -50,8 +50,14 @@ globals.myGameArea = {
     window.addEventListener('mousedown', function(e) {globals.myGameArea.mousedown = true; globals.myGameArea.mouseX = e.clientX-globals.myGameArea.xOffset; globals.myGameArea.mouseY = e.clientY-globals.myGameArea.yOffset;})
     window.addEventListener('mouseup', function(e) {globals.myGameArea.mousedown = false; globals.myGameArea.mouseX = false; globals.myGameArea.mouseY = false;})
     window.addEventListener('mousemove', function(e) {globals.myGameArea.mouseX = e.clientX-globals.myGameArea.xOffset; globals.myGameArea.mouseY = e.clientY-globals.myGameArea.yOffset;})
-    window.addEventListener('keydown', function (e) {globals.myGameArea.keys.add(e.keyCode);})
-    window.addEventListener('keyup', function (e) {globals.myGameArea.keys.delete(e.keyCode);})
+    window.addEventListener('keydown', function (e) {
+      e.preventDefault();
+      globals.myGameArea.keys.add(e.keyCode);
+    })
+    window.addEventListener('keyup', function (e) {
+      e.preventDefault();
+      globals.myGameArea.keys.delete(e.keyCode);
+    })
   },
   clear: function(){
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
