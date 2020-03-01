@@ -58,19 +58,55 @@ globals.myGameArea = {
   }
 }
 
+// Wrap image-loading in a Promise. */
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    let img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(img);
+    img.src = src;
+  });
+}
+
+async function loadImages() {
+  // Load tiles
+  for (let name of Object.keys(globals.images.tiles)) {
+    await loadImage(`assets/graphics/tiles/${name}.png`)
+      .then(val => globals.images.tiles[name] = val);
+  }
+
+  // Load apples
+  for (let name of Object.keys(globals.images.items)) {
+    await loadImage(`assets/graphics/items/${name}.png`)
+      .then(val => globals.images.items[name] = val);
+  }
+
+  // Load environment assets
+  for (let name of Object.keys(globals.images.environment)) {
+    await loadImage(`assets/graphics/environment/${name}.png`)
+      .then(val => globals.images.environment[name] = val);
+  }
+
+  // Load UI assets
+  for (let name of Object.keys(globals.images.ui)) {
+    await loadImage(`assets/graphics/ui/${name}.png`)
+      .then(val => globals.images.ui[name] = val);
+  }
+}
+
 /* Loads all resources required by the game. */
 async function loadAllResources() {
   globals.player1 = await new Player(40, 49, 290, globals.myGameArea.height-200);
   // TODO: make loadImages() return a promise, so that other object's assets
   //       can be loaded at the same time
   await globals.player1.loadImages();
+  await loadImages();
   console.log(globals.player1.imgs);
 }
 
 
 /* Entry point to game. */
-async function startGame() { // the html document index.html calls startGame()
-
+async function startGame() {
   globals.myGameArea.start();
   //mText = new textBox("14px", "Helvetica", 100,120);
   globals.bgMusic = new Sound(getResourcePath("assets/sound/main.mp3"));

@@ -30,4 +30,33 @@ export default {
   pickupSound: null,
   resetButton: null,
   myGameArea: null,
+  images: {
+    tiles: {
+      "Tile1": null,
+      "Tile2": null,
+      "Tile3": null,
+      "Tile4": null,
+      "Tile5": null,
+      "Tile6": null,
+      "Tile7": null,
+      "Tile8": null,
+    },
+    items: {
+      "Apple1": null,
+      "Apple2": null,
+      "Apple3": null,
+    },
+    environment: {
+      "HouseClosed": null,
+      "HouseOpen": null,
+      "Leaf": null,
+      "Cloud1": null,
+      "Cloud2": null,
+      "Cloud3": null,
+      "Background": null,
+    },
+    "ui": {
+      "RestartButton": null,
+    },
+  },
 };

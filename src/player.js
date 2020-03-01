@@ -65,7 +65,6 @@ class Player {
   	this.facing = "right";
   	this.gravitySpeed = 0;
   	this.walkCycleFrame = 0;
-  	this.pickupAnimFrame = [0, 0];  /* a tuple of indices for pickupAnims */
   	this.pickupAnimDelay = 7;
   	this.isPickingUp = false;
   	this.numApples = 0;
@@ -137,12 +136,14 @@ class Player {
     }
   }
 
-    /* Starts the globals.pickup animation. */
+  /* Starts the globals.pickup animation. */
   startPickupAnimation() {
+    console.log("startPickupAnimation()")
     this.isPickingUp = true;
     /* Start at -1 so that the animation begins in advancePickupAnimation() */
     /* numApples is already incremented before this method is called */
-    this.pickupAnimFrame = [this.numApples - 1, -1];
+    this.pickupAnimNum = this.numApples - 1;
+    this.pickupAnimFrameNum = -1;
   }
 
   endPickupAnimation() {
@@ -162,15 +163,21 @@ class Player {
     }
     this.pickupAnimDelay = 7;
 
-    var animNum = this.pickupAnimFrame[0];
-    var frameNum = this.pickupAnimFrame[1];
-    frameNum += 1;
+    this.pickupAnimFrameNum += 1;
     /* Stop the animation after playing once. */
-    if (frameNum == this.imgs.pickupAnims[animNum].length) {
+    /* animNum is -1 the first time this function is called after starting the animation */
+    // console.log("animNum: ", animNum);
+    // if (frameNum == this.imgs.pickupAnims[animNum].length) {
+    // NOTE: not sure why 'animNum' is getting so large before this function is called.
+    //       This is a quick hack to fix it. Note that it limits all picking animations
+    //       to 3 frames.
+    console.log("this.pickupAnimNum: ", this.pickupAnimNum);
+    console.log("this.pickupAnimFrameNum: ", this.pickupAnimFrameNum);
+    if (this.pickupAnimFrameNum == 2) {
+    // if (this.pickupAnimFrameNum >= this.imgs.pickupAnims[this.pickupAnimNum].length) {
       return this.endPickupAnimation();
     }
-    this.image = this.imgs.pickupAnims[animNum][frameNum];
-    this.pickupAnimFrame[1] = frameNum;  /* update the frame counter */
+    this.image = this.imgs.pickupAnims[this.pickupAnimNum][this.pickupAnimFrameNum];
   }
 
   update() {
@@ -257,16 +264,13 @@ class Player {
                         if (slot.cBoxes[i][4] === 12){ // touching house
                             if (globals.apples.size === 1) { // all globals.apples collected
                                 globals.apples.clear();
-				globals.level ++;
-				startLevel(globals.level); //play next globals.level
-                                //window.location.replace("credits.html");
+                                globals.level ++;
+                                startLevel(globals.level); //play next globals.level
                             }
                         } else {
-
-                            //index is slot.cBoxes[i][4]
                             for (let apple of globals.apples){
                                 /* Don't collide with an apple being picked */
-                                if (apple == this.appleBeingPicked) {
+                                if (apple == this.appleBeingPicked || this.isPickupUp) {
                                     continue;
                                 }
                                 if (apple.num === slot.cBoxes[i][4]){
@@ -275,7 +279,6 @@ class Player {
                                     this.numApples += 1;
                                     this.startPickupAnimation();
                                 }
-                                //slot.cBoxes.splice(i,1);
                             }
                         }
                         return 1;

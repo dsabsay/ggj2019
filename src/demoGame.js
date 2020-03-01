@@ -13,6 +13,7 @@ function getResourcePath(name) {
 
 function startLevel(index) {
   if (index <= globals.levels.length) {
+    globals.apples.clear();
   	globals.background = new bg();
   	globals.tiles = [];
     // the first tile must start in the middle, big
@@ -82,8 +83,7 @@ function resetButton() {
   this.y = globals.myGameArea.height - 60;
   this.width = 50;
   this.height = 50;
-  this.image = new Image();
-  this.image.src = "assets/graphics/ui/RestartButton.png";
+  this.image = globals.images.ui["RestartButton"];
 
   this.update = function() {
     let ctx = globals.myGameArea.context;
@@ -107,8 +107,7 @@ function bg() {
   this.height = 160;
   this.gap = 20;
   this.slots = [];
-  this.bgImage = new Image();
-  this.bgImage.src = "assets/graphics/environment/Background.png";
+  this.bgImage = globals.images.environment["Background"];
 
   for (let i=0; i<3; i++) {
     this.slots.push(new slot(this.x, this.y, this.width, this.height));
@@ -209,17 +208,14 @@ function tile(map, x, y, scale){
 
         let ctx = globals.myGameArea.context;
         ctx.lineWidth = 0.5;
-        //ctx.fillRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
         ctx.strokeRect(this.x, this.y, this.Twidth*this.scale, this.Theight*this.scale); // tile bg
-        //ctx.drawImage(this.bgImage, this.x, this.y, this.Twidth*this.scale, this.Theight*0.5*this.scale);
 
         this.drawx = this.x-2*this.scale;
         this.drawy = this.y;
         for (let i = 0; i < map.length; i++){
             for (let j = 0; j < map[i].length; j++){
                 if (map[i][j] > 0 && map[i][j] < 9){
-                    this.image.src = "assets/graphics/tiles/Tile" + map[i][j] + ".png"; // draw globals.platforms
-                    //ctx.globalAlpha = 0.5;
+                    this.image = globals.images.tiles[`Tile${map[i][j]}`];
                     ctx.drawImage(this.image, this.drawx, this.drawy, this.width*this.scale, this.height*this.scale);
                 } else if (map[i][j] === 12){
                     for (let apple of globals.apples){
@@ -285,10 +281,9 @@ function apple(x,y,num){
     this.drawApple = function(dx,dy,height,width){
         if (this.num >= 9){
             if (this.num === 12){
-                this.image.src = "assets/graphics/environment/HouseClosed.png";
-                //    ctx.drawImage(this.image, dx-20, dy-40, height*4, width*4);
+                this.image = globals.images.environment["HouseClosed"];
             } else {
-                this.image.src = "assets/graphics/items/Apple" + (this.num-8) + ".png";
+                this.image = globals.images.items[`Apple${this.num - 8}`];
             }
             let ctx = globals.myGameArea.context;
             ctx.drawImage(this.image, dx, dy, height, width);
@@ -309,8 +304,7 @@ function apple(x,y,num){
 }
 
 function cloud(type){
-    this.image = new Image();
-    this.image.src = "assets/graphics/environment/Cloud" + Math.ceil(Math.random()*3) + ".png";
+    this.image = globals.images.environment[`Cloud${Math.ceil(Math.random()*3)}`];
     this.width = Math.floor(Math.random()*150)+100;
     this.height = Math.floor(this.width*(Math.random()*0.25+0.5));
 
@@ -332,8 +326,7 @@ function cloud(type){
 }
 
 function leaf(){
-    this.image = new Image();
-    this.image.src = "assets/graphics/environment/Leaf.png";
+    this.image = globals.images.environment["Leaf"];
     this.x = Math.random()*720;
     this.y = -50;
     this.rotation = Math.random()*360;
@@ -358,8 +351,7 @@ function leaf(){
 }
 
 function tinyLeaf(x,y){
-    this.image = new Image();
-    this.image.src = "assets/graphics/environment/Leaf.png";
+    this.image = globals.images.environment["Leaf"];
     this.gravity = 0.03;
     this.age = 0;
     this.maxAge = Math.floor(Math.random()*50)+40;
@@ -393,7 +385,6 @@ function updateGameArea() {
     globals.myGameArea.clear();
     globals.myGameArea.frameNumber += 1;
     globals.background.update();
-
 
     if (globals.myGameArea.frameNumber === globals.nextLeafAt) { // wait until ready
     	globals.nextLeafAt = Math.floor(Math.random()*60)+20 + globals.myGameArea.frameNumber; //chose a new time
@@ -432,7 +423,10 @@ function updateGameArea() {
     }
 
     for (let j = 0; j < globals.tiles.length; j++){
-        if (globals.myGameArea.mouseX && globals.myGameArea.mouseY && globals.myGameArea.mousedown && (globals.pickup === -1 || globals.pickup === j)){ // touching mouse
+        if (globals.myGameArea.mouseX
+            && globals.myGameArea.mouseY
+            && globals.myGameArea.mousedown
+            && (globals.pickup === -1 || globals.pickup === j)) { // touching mouse
 
             if (globals.myGameArea.mouseX > globals.tiles[j].x &&
                 globals.myGameArea.mouseX < globals.tiles[j].x+120*globals.tiles[j].scale
@@ -511,9 +505,7 @@ function updateGameArea() {
         }
         globals.tiles[j].update();
     }
-    //mText.text="yv: " + globals.player1.changeY; //update score
-    //mText.update();
-    globals.player1.update(); // update globals.player1
+    globals.player1.update();
 
     for (let t = 0; t < globals.tinyLeaves.length; t++){ // don't draw globals.tinyLeaves over credits
         if (globals.tinyLeaves[t].age < globals.tinyLeaves[t].maxAge){
