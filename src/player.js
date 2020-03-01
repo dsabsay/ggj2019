@@ -91,6 +91,7 @@ class Player {
     }
 
     await _loadImages(this.imgSrcs, this.imgs);
+    this.image = this.imgs.idle;
   }
 
   /* Wrap image loading in a Promise. */

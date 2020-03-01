@@ -121,7 +121,6 @@ async function startGame() {
 
 async function main() {
   await loadAllResources();
-
   startGame();
 }
 
