@@ -101,7 +101,6 @@ async function loadAllResources() {
   //       can be loaded at the same time
   await globals.player1.loadImages();
   await loadImages();
-  console.log(globals.player1.imgs);
 }
 
 

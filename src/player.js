@@ -138,7 +138,6 @@ class Player {
 
   /* Starts the globals.pickup animation. */
   startPickupAnimation() {
-    console.log("startPickupAnimation()")
     this.isPickingUp = true;
     /* Start at -1 so that the animation begins in advancePickupAnimation() */
     /* numApples is already incremented before this method is called */
@@ -163,18 +162,10 @@ class Player {
     }
     this.pickupAnimDelay = 7;
 
-    this.pickupAnimFrameNum += 1;
     /* Stop the animation after playing once. */
     /* animNum is -1 the first time this function is called after starting the animation */
-    // console.log("animNum: ", animNum);
-    // if (frameNum == this.imgs.pickupAnims[animNum].length) {
-    // NOTE: not sure why 'animNum' is getting so large before this function is called.
-    //       This is a quick hack to fix it. Note that it limits all picking animations
-    //       to 3 frames.
-    console.log("this.pickupAnimNum: ", this.pickupAnimNum);
-    console.log("this.pickupAnimFrameNum: ", this.pickupAnimFrameNum);
-    if (this.pickupAnimFrameNum == 2) {
-    // if (this.pickupAnimFrameNum >= this.imgs.pickupAnims[this.pickupAnimNum].length) {
+    this.pickupAnimFrameNum += 1;
+    if (this.pickupAnimFrameNum == this.imgs.pickupAnims[this.pickupAnimNum].length) {
       return this.endPickupAnimation();
     }
     this.image = this.imgs.pickupAnims[this.pickupAnimNum][this.pickupAnimFrameNum];

@@ -3,7 +3,6 @@ import { Player } from './player.js';
 
 /* Return the full path to a resource. */
 function getResourcePath(name) {
-  console.log(window.location.hostname);
   if (window.location.hostname.includes("dsabsay.github.io")) {
     // return "https://raw.githubusercontent.com/dsabsay/ggj2019/master/" + name;
     return name + "?raw=true";
