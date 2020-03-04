@@ -33,23 +33,35 @@ globals.myGameArea = {
 
   	this.canvas.style.width = this.canvas.width + "px"; // set pretty pixels through sorcery
   	this.canvas.style.height = this.canvas.height + "px";
-  	this.canvas.width *= window.devicePixelRatio || 1;
-  	this.canvas.height *= window.devicePixelRatio || 1;
+    let dpr = window.devicePixelRatio || 1;
+  	this.canvas.width *= dpr;
+  	this.canvas.height *= dpr;
 
   	this.context = this.canvas.getContext("2d");
-  	this.context.scale(2,2);
+  	this.context.scale(dpr, dpr);
 
-        this.boundingRect = this.canvas.getBoundingClientRect();
-        this.xOffset = this.boundingRect.x;
-        this.yOffset = this.boundingRect.y;
+    this.boundingRect = this.canvas.getBoundingClientRect();
+    this.xOffset = this.boundingRect.x;
+    this.yOffset = this.boundingRect.y;
 
     this.frameNumber = 0;
     this.keys = new Set();
     this.interval = setInterval(updateGameArea, 20); //update every 20ms
     //listen for when the user pushes key
-    window.addEventListener('mousedown', function(e) {globals.myGameArea.mousedown = true; globals.myGameArea.mouseX = e.clientX-globals.myGameArea.xOffset; globals.myGameArea.mouseY = e.clientY-globals.myGameArea.yOffset;})
-    window.addEventListener('mouseup', function(e) {globals.myGameArea.mousedown = false; globals.myGameArea.mouseX = false; globals.myGameArea.mouseY = false;})
-    window.addEventListener('mousemove', function(e) {globals.myGameArea.mouseX = e.clientX-globals.myGameArea.xOffset; globals.myGameArea.mouseY = e.clientY-globals.myGameArea.yOffset;})
+    window.addEventListener('mousedown', function(e) {
+      globals.myGameArea.mousedown = true;
+      globals.myGameArea.mouseX = e.clientX-globals.myGameArea.xOffset;
+      globals.myGameArea.mouseY = e.clientY-globals.myGameArea.yOffset;
+    });
+    window.addEventListener('mouseup', function(e) {
+      globals.myGameArea.mousedown = false;
+      globals.myGameArea.mouseX = false;
+      globals.myGameArea.mouseY = false;
+    });
+    window.addEventListener('mousemove', function(e) {
+      globals.myGameArea.mouseX = e.clientX-globals.myGameArea.xOffset;
+      globals.myGameArea.mouseY = e.clientY-globals.myGameArea.yOffset;
+    });
     window.addEventListener('keydown', function (e) {
       e.preventDefault();
       globals.myGameArea.keys.add(e.keyCode);
