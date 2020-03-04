@@ -18,3 +18,7 @@ Bugs, todos, features.
   Repro: Go to level 2. The bug happens on the tile/card shown above, but you can't "fall" onto the apple. Jump unto the platform without touching the apple, then walk into the apple. Seems to also only happen when using the Restart button. This means that some internal state is not being reset properly.
 
   FIXED: 99% sure I fixed the issue. Caused by player using the Restart button. The `globals.apples` Set, which kept track of apples that the player had or were on screen--I'm not sure which--, was not being reset. The solution was to call `.clear()` on that set in the `startLevel()` function, which is called when the Restart button is clicked.
+
+## Bug Fixes
+
+* Fix for different screen resolutions. For reference, this is the method we are using for scaling the canvas, based on pixel ratio: https://www.html5rocks.com/en/tutorials/canvas/hidpi/
